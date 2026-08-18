@@ -15,55 +15,12 @@ export default function Home() {
       <Navbar />
 
       <main className="relative z-10">
-
-        <section
-          id="home"
-          className="min-h-screen"
-        >
-          {/* Hero */}
-          <Hero />
-        </section>
-
-        <section
-          id="about"
-          className="min-h-screen"
-        >
-          {/* About */}
-          <About />
-        </section>
-
-        <section
-          id="skills"
-          className="min-h-screen"
-        >
-          {/* Skills */}
-          <Skills />
-        </section>
-
-        <section
-          id="projects"
-          className="min-h-screen"
-        >
-          {/* Projects */}
-          <Projects />
-        </section>
-
-        <section
-          id="experience"
-          className="min-h-screen"
-        >
-          {/* Experience */}
-          <Experience />
-        </section>
-
-        <section
-          id="contact"
-          className="min-h-screen"
-        >
-          {/* Contact */}
-          <Contact />
-        </section>
-
+        <Hero />
+        <About />
+        <Skills />
+        <Projects />
+        <Experience />
+        <Contact />
       </main>
     </>
   );

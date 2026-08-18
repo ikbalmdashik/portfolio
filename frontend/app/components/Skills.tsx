@@ -47,7 +47,6 @@ const skillGroups = [
       },
     ],
   },
-
   {
     title: "Backend",
     number: "02",
@@ -70,7 +69,6 @@ const skillGroups = [
       },
     ],
   },
-
   {
     title: "Database",
     number: "03",
@@ -83,7 +81,6 @@ const skillGroups = [
       },
     ],
   },
-
   {
     title: "Tools & Workflow",
     number: "04",
@@ -105,88 +102,102 @@ const skillGroups = [
 
 export default function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
+    const title = titleRef.current;
 
-    if (!section) return;
-
-    const cards = gsap.utils.toArray<HTMLElement>(
-      ".skill-deck-card"
-    );
-
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    if (!section || !title) return;
 
     const ctx = gsap.context(() => {
+      const label = section.querySelector(".skills-label");
+
+      const characters =
+        title.querySelectorAll(".skills-character");
+
+      const cards =
+        gsap.utils.toArray<HTMLElement>(".skill-deck-card");
+
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
       // ==========================================
       // REDUCED MOTION
       // ==========================================
 
       if (prefersReducedMotion) {
+        gsap.set(label, {
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+        });
+
+        gsap.set(characters, {
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+        });
+
         gsap.set(cards, {
+          opacity: 1,
           x: 0,
           y: 0,
           scale: 1,
           rotate: 0,
-          opacity: 1,
+          filter: "blur(0px)",
         });
 
         return;
       }
 
       // ==========================================
-      // INITIAL CARD DECK
+      // INITIAL HEADER STATE
       // ==========================================
 
-      cards.forEach((card, index) => {
-        if (index === 0) {
-          // Front card
-          gsap.set(card, {
-            x: 0,
-            y: 0,
-            scale: 1,
-            rotate: 0,
-            opacity: 1,
-            zIndex: 10,
-          });
-        } else {
-          // Cards behind frontend
-          gsap.set(card, {
-            x: index * 6,
-            y: index * 14,
-            scale: 1 - index * 0.025,
-            rotate: index % 2 === 0 ? 1 : -1,
-            opacity: 1,
-            zIndex: 10 - index,
-          });
-        }
+      gsap.set(label, {
+        opacity: 0,
+        y: 20,
+        filter: "blur(8px)",
       });
 
       // ==========================================
-      // EXIT DIRECTIONS
+      // TITLE INITIAL STATE
+      // SAME AS ABOUT PAGE
       // ==========================================
 
-      const exitDirections = [
-        {
-          x: 0,
-          y: "-120%",
-          rotate: -8,
-        },
+      gsap.set(characters, {
+        opacity: 0,
+        y: 35,
+        filter: "blur(8px)",
+      });
 
-        {
-          x: "120%",
-          y: 0,
-          rotate: 10,
-        },
+      // ==========================================
+      // CARD ENTER DIRECTIONS
+      //
+      // 01 → Bottom
+      // 02 → Right
+      // 03 → Top
+      // 04 → Left
+      // ==========================================
 
+      const enterDirections = [
         {
           x: 0,
           y: "120%",
           rotate: 8,
         },
-
+        {
+          x: "120%",
+          y: 0,
+          rotate: 10,
+        },
+        {
+          x: 0,
+          y: "-120%",
+          rotate: -8,
+        },
         {
           x: "-120%",
           y: 0,
@@ -195,7 +206,25 @@ export default function Skills() {
       ];
 
       // ==========================================
-      // SCROLL TIMELINE
+      // INITIAL CARD STATES
+      // ==========================================
+
+      cards.forEach((card, index) => {
+        const direction = enterDirections[index];
+
+        gsap.set(card, {
+          x: direction.x,
+          y: direction.y,
+          scale: 0.85,
+          rotate: direction.rotate,
+          opacity: 0,
+          zIndex: 10 + index,
+          filter: "blur(10px)",
+        });
+      });
+
+      // ==========================================
+      // MAIN SCROLL TIMELINE
       // ==========================================
 
       const timeline = gsap.timeline({
@@ -204,22 +233,13 @@ export default function Skills() {
 
           start: "top top",
 
-          /*
-            4 transitions:
-
-            1 → Frontend
-            2 → Backend
-            3 → Database
-            4 → Tools exits
-
-            After that the section unpins.
-          */
-
-          end: `+=${cards.length * 100}%`,
+          end: `+=${cards.length * 50}%`,
 
           scrub: 1,
 
           pin: true,
+
+          pinSpacing: true,
 
           anticipatePin: 1,
 
@@ -228,54 +248,125 @@ export default function Skills() {
       });
 
       // ==========================================
-      // CARD TRANSITIONS
+      // 1. SKILLS LABEL
+      // ==========================================
+
+      timeline.to(label, {
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
+        duration: 0.12,
+        ease: "power3.out",
+      });
+
+      // ==========================================
+      // 2. WRITE
+      // "TOOLS I USE TO BUILD."
+      //
+      // EXACT SAME STYLE AS ABOUT
+      // ==========================================
+
+      timeline.to(characters, {
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
+        duration: 0.08,
+        stagger: 0.045,
+        ease: "power2.out",
+      });
+
+      // ==========================================
+      // 3. SMALL HOLD
+      // ==========================================
+
+      timeline.to(
+        {},
+        {
+          duration: 0.2,
+        }
+      );
+
+      // ==========================================
+      // 4. FIRST CARD
+      //
+      // Comes from bottom
+      // ==========================================
+
+      timeline.to(cards[0], {
+        x: 0,
+        y: 0,
+        rotate: 0,
+        scale: 1,
+        opacity: 1,
+        filter: "blur(0px)",
+        duration: 0.8,
+        ease: "power3.out",
+      });
+
+      // ==========================================
+      // 5. CARD TRANSITIONS
       // ==========================================
 
       cards.forEach((card, index) => {
         const nextCard = cards[index + 1];
 
-        const exit = exitDirections[index];
+        if (!nextCard) return;
 
-        const label = `card-${index}`;
+        const nextDirection = enterDirections[index + 1];
 
-        // ------------------------------------------
-        // Current card exits
-        // ------------------------------------------
+        // ========================================
+        // CURRENT CARD EXIT
+        // ========================================
 
-        timeline.to(
-          card,
+        timeline.to(card, {
+          x: 0,
+          y: index % 2 === 0 ? "-120%" : "120%",
+          rotate: index % 2 === 0 ? -8 : 8,
+          scale: 0.85,
+          opacity: 0,
+          filter: "blur(10px)",
+          duration: 1,
+          ease: "power2.inOut",
+        });
+
+        // ========================================
+        // NEXT CARD ENTER
+        // ========================================
+
+        timeline.fromTo(
+          nextCard,
           {
-            x: exit.x,
-            y: exit.y,
-            rotate: exit.rotate,
+            x: nextDirection.x,
+            y: nextDirection.y,
+            rotate: nextDirection.rotate,
             scale: 0.85,
             opacity: 0,
-            duration: 1,
-            ease: "power3.inOut",
+            filter: "blur(10px)",
           },
-          label
+          {
+            x: 0,
+            y: 0,
+            rotate: 0,
+            scale: 1,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 1,
+            ease: "power3.out",
+          },
+          "<"
         );
-
-        // ------------------------------------------
-        // Bring next card to center
-        // ------------------------------------------
-
-        if (nextCard) {
-          timeline.to(
-            nextCard,
-            {
-              x: 0,
-              y: 0,
-              rotate: 0,
-              scale: 1,
-              opacity: 1,
-              duration: 1,
-              ease: "power3.out",
-            },
-            label
-          );
-        }
       });
+
+      // ==========================================
+      // 6. FINAL HOLD
+      // ==========================================
+
+      timeline.to(
+        {},
+        {
+          duration: 0.25,
+        }
+      );
     }, section);
 
     return () => {
@@ -283,38 +374,79 @@ export default function Skills() {
     };
   }, []);
 
+  const statement = "Tools I use to build.";
+
   return (
     <section
       ref={sectionRef}
       id="skills"
-      className="relative"
+      className="relative overflow-hidden"
     >
       <div className="flex min-h-screen items-center px-6 py-24 lg:px-8">
-
         <div className="mx-auto w-full max-w-7xl">
 
           {/* ==========================================
               HEADER
           ========================================== */}
 
-          <div className="mb-12 max-w-3xl">
+          <div className="mb-16 max-w-6xl">
 
-            <p className="mb-4 text-sm font-medium uppercase tracking-[0.3em] text-indigo-400">
-              Skills
-            </p>
+            {/* LABEL */}
 
-            <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Tools I use to{" "}
-              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                build.
-              </span>
-            </h2>
+            <div className="skills-label mb-8 text-center">
+              <p className="text-xs font-medium uppercase tracking-[0.4em] text-indigo-400">
+                Skills
+              </p>
+            </div>
 
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-zinc-400">
-              Technologies and tools I use to build modern,
-              reliable, and scalable web applications.
-            </p>
+            {/* TITLE */}
 
+            <div className="flex justify-center">
+              <h2
+                ref={titleRef}
+                className="
+                  mx-auto
+                  max-w-6xl
+                  text-center
+                  text-5xl
+                  font-bold
+                  leading-[1.05]
+                  tracking-tight
+                  text-white
+                  sm:text-6xl
+                  md:text-7xl
+                  lg:text-8xl
+                "
+              >
+                {statement.split("").map((character, index) => {
+                  const isBuild =
+                    index >= "Tools I use to ".length;
+
+                  return (
+                    <span
+                      key={`${character}-${index}`}
+                      className={`
+                        skills-character
+                        inline-block
+                        ${
+                          isBuild
+                            ? "bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+                            : ""
+                        }
+                      `}
+                      style={{
+                        whiteSpace:
+                          character === " "
+                            ? "pre"
+                            : "normal",
+                      }}
+                    >
+                      {character}
+                    </span>
+                  );
+                })}
+              </h2>
+            </div>
           </div>
 
           {/* ==========================================
@@ -322,7 +454,13 @@ export default function Skills() {
           ========================================== */}
 
           <div
-            className="relative mx-auto h-[480px] w-full max-w-5xl"
+            className="
+              relative
+              mx-auto
+              h-[480px]
+              w-full
+              max-w-5xl
+            "
             style={{
               perspective: "1400px",
             }}
@@ -330,18 +468,29 @@ export default function Skills() {
             {skillGroups.map((group) => (
               <div
                 key={group.title}
-                className="skill-deck-card absolute inset-0 rounded-[2rem] border border-white/10 bg-zinc-950/90 p-7 shadow-2xl backdrop-blur-xl will-change-transform sm:p-10"
+                className="
+                  skill-deck-card
+                  absolute
+                  inset-0
+                  rounded-[2rem]
+                  border
+                  border-white/10
+                  bg-white/[0.03]
+                  p-7
+                  shadow-2xl
+                  backdrop-blur-xl
+                  will-change-transform
+                  sm:p-10
+                "
                 style={{
                   transformStyle: "preserve-3d",
                 }}
               >
-
-                {/* ==================================
-                    HEADER
-                ================================== */}
+                {/* ======================================
+                    CARD HEADER
+                ====================================== */}
 
                 <div className="flex items-start justify-between">
-
                   <div>
 
                     <p className="text-sm font-medium uppercase tracking-[0.25em] text-indigo-400">
@@ -361,28 +510,64 @@ export default function Skills() {
                   <span className="hidden select-none text-8xl font-bold leading-none text-white/[0.03] sm:block">
                     {group.number}
                   </span>
-
                 </div>
 
-                {/* ==================================
-                    SKILLS
-                ================================== */}
+                {/* ======================================
+                    SKILLS GRID
+                ====================================== */}
 
                 <div className="mt-10 grid gap-4 sm:grid-cols-2">
-
                   {group.skills.map((skill) => {
                     const Icon = skill.icon;
 
                     return (
                       <div
                         key={skill.name}
-                        className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/30 hover:bg-indigo-500/[0.05]"
+                        className="
+                          group
+                          flex
+                          items-center
+                          gap-4
+                          rounded-2xl
+                          border
+                          border-white/10
+                          bg-white/[0.03]
+                          p-4
+                          transition-all
+                          duration-300
+                          hover:-translate-y-1
+                          hover:border-indigo-400/30
+                          hover:bg-indigo-500/[0.05]
+                        "
                       >
-
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] transition-all duration-300 group-hover:border-indigo-400/30 group-hover:bg-indigo-500/10">
-
-                          <Icon className="text-2xl text-zinc-300 transition-all duration-300 group-hover:scale-110 group-hover:text-white" />
-
+                        <div
+                          className="
+                            flex
+                            h-12
+                            w-12
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-xl
+                            border
+                            border-white/10
+                            bg-white/[0.05]
+                            transition-all
+                            duration-300
+                            group-hover:border-indigo-400/30
+                            group-hover:bg-indigo-500/10
+                          "
+                        >
+                          <Icon
+                            className="
+                              text-2xl
+                              text-zinc-300
+                              transition-all
+                              duration-300
+                              group-hover:scale-110
+                              group-hover:text-white
+                            "
+                          />
                         </div>
 
                         <div>
@@ -394,19 +579,29 @@ export default function Skills() {
                             {skill.keyword}
                           </p>
                         </div>
-
                       </div>
                     );
                   })}
-
                 </div>
 
-                {/* ==================================
+                {/* ======================================
                     FOOTER
-                ================================== */}
+                ====================================== */}
 
-                <div className="absolute bottom-7 left-7 right-7 flex items-center justify-between sm:bottom-10 sm:left-10 sm:right-10">
-
+                <div
+                  className="
+                    absolute
+                    bottom-7
+                    left-7
+                    right-7
+                    flex
+                    items-center
+                    justify-between
+                    sm:bottom-10
+                    sm:left-10
+                    sm:right-10
+                  "
+                >
                   <span className="text-xs uppercase tracking-[0.2em] text-zinc-600">
                     Scroll to explore
                   </span>
@@ -414,14 +609,10 @@ export default function Skills() {
                   <span className="text-sm text-zinc-600">
                     {group.number} / 04
                   </span>
-
                 </div>
-
               </div>
             ))}
-
           </div>
-
         </div>
       </div>
     </section>

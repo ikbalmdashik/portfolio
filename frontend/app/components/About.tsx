@@ -8,269 +8,312 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
+  const textRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
+    const text = textRef.current;
 
-    if (!section) return;
+    if (!section || !text) return;
 
     const ctx = gsap.context(() => {
-      gsap.from(".about-reveal", {
+      const characters = text.querySelectorAll(".about-character");
+      const label = section.querySelector(".about-label");
+      const cards = section.querySelectorAll(".about-card");
+
+      // ==========================================
+      // INITIAL STATES
+      // ==========================================
+
+      gsap.set(label, {
         opacity: 0,
-        y: 40,
-        duration: 0.8,
-        stagger: 0.12,
-        ease: "power3.out",
+        y: 20,
+        filter: "blur(8px)",
+      });
+
+      gsap.set(characters, {
+        opacity: 0,
+        y: 35,
+        filter: "blur(8px)",
+      });
+
+      gsap.set(cards, {
+        opacity: 0,
+        y: 50,
+        filter: "blur(10px)",
+      });
+
+      // ==========================================
+      // MAIN SCROLL TIMELINE
+      // ==========================================
+
+      const timeline = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: "top 75%",
-          once: true,
+
+          // About starts as soon as it enters
+          start: "top top",
+
+          // Length of the animation
+          end: "+=2200",
+
+          scrub: 1,
+
+          // Keep the About content fixed
+          // while the user scrolls through animation
+          pin: ".about-stage",
+
+          pinSpacing: true,
+
+          anticipatePin: 1,
         },
+      });
+
+      // ==========================================
+      // 1. ABOUT LABEL
+      // ==========================================
+
+      timeline.to(label, {
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
+        duration: 0.12,
+        ease: "power3.out",
+      });
+
+      // ==========================================
+      // 2. WRITE "MORE THAN JUST CODE."
+      // ==========================================
+
+      timeline.to(characters, {
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
+        duration: 0.08,
+        stagger: 0.045,
+        ease: "power2.out",
+      });
+
+      // ==========================================
+      // 3. HOLD
+      // ==========================================
+
+      timeline.to({}, {
+        duration: 0.25,
+      });
+
+      // ==========================================
+      // 5. REVEAL CARDS
+      // ==========================================
+
+      timeline.to(cards, {
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
+        duration: 0.16,
+        stagger: 0.12,
+        ease: "power3.out",
+      });
+
+      // ==========================================
+      // 6. HOLD
+      // ==========================================
+
+      timeline.to({}, {
+        duration: 0.25,
       });
     }, section);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+    };
   }, []);
+
+  const statement = "More Than Just Code.";
 
   return (
     <section
       ref={sectionRef}
       id="about"
-      className="relative overflow-hidden px-6 py-32 lg:px-8"
+      className="relative min-h-[2200px]"
     >
-      <div className="mx-auto max-w-7xl">
+      {/* ==========================================
+          ABOUT STAGE
+      ========================================== */}
 
-        {/* ==========================================
-            HEADER
-        ========================================== */}
+      <div className="about-stage relative flex min-h-screen items-center justify-center overflow-hidden px-6 lg:px-8">
 
-        <div className="about-reveal mb-16 max-w-3xl">
-          <p className="mb-4 text-sm font-medium uppercase tracking-[0.3em] text-indigo-400">
-            About Me
-          </p>
+        {/* ========================================
+            SUBTLE BACKGROUND GLOW
+        ======================================== */}
 
-          <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            More than just{" "}
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              code.
-            </span>
-          </h2>
-        </div>
+        <div
+          className="
+            pointer-events-none
+            absolute
+            left-1/2
+            top-1/2
+            h-[500px]
+            w-[500px]
+            -translate-x-1/2
+            -translate-y-1/2
+            rounded-full
+            bg-indigo-500/[0.05]
+            blur-[150px]
+          "
+        />
 
-        {/* ==========================================
-            MAIN CONTENT
-        ========================================== */}
+        <div className="relative z-10 mx-auto w-full max-w-7xl">
 
-        <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+          {/* ========================================
+              LABEL
+          ======================================== */}
 
-          {/* ==========================================
-              INTRODUCTION
-          ========================================== */}
+          <div className="about-label mb-8 text-center">
+            <p className="text-xs font-medium uppercase tracking-[0.4em] text-indigo-400">
+              About Me
+            </p>
+          </div>
 
-          <div className="about-reveal rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-sm sm:p-10">
+          {/* ========================================
+              MAIN STATEMENT
+          ======================================== */}
 
-            <div className="mb-8 flex items-center gap-4">
-
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-400/20 bg-indigo-500/10">
-                <span className="text-lg text-indigo-400">
-                  {"</>"}
+          <div className="flex justify-center">
+            <h2
+              ref={textRef}
+              className="
+                max-w-6xl
+                text-center
+                text-5xl
+                font-bold
+                leading-[1.05]
+                tracking-tight
+                text-white
+                sm:text-6xl
+                md:text-7xl
+                lg:text-8xl
+              "
+            >
+              {statement.split("").map((character, index) => (
+                <span
+                  key={`${character}-${index}`}
+                  className="about-character inline-block"
+                  style={{
+                    whiteSpace:
+                      character === " " ? "pre" : "normal",
+                  }}
+                >
+                  {character}
                 </span>
-              </div>
+              ))}
+            </h2>
+          </div>
 
-              <div>
-                <h3 className="font-semibold text-white">
-                  Full-Stack Developer
-                </h3>
+          {/* ========================================
+              CARDS
+          ======================================== */}
 
-                <p className="text-sm text-zinc-500">
-                  Building things for the web
+          <div className="mx-auto mt-16 max-w-5xl">
+
+            {/* ======================================
+                TOP CARDS
+            ====================================== */}
+
+            <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr]">
+
+              {/* WHO I AM */}
+
+              <div className="about-card rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl sm:p-10">
+
+                <p className="text-sm font-medium uppercase tracking-[0.25em] text-indigo-400">
+                  Who I Am
                 </p>
-              </div>
 
-            </div>
+                <p className="mt-6 text-lg leading-8 text-zinc-300">
+                  I&apos;m a Computer Science graduate and full-stack
+                  developer who enjoys turning ideas into useful,
+                  well-crafted digital products.
+                </p>
 
-            <div className="space-y-5 text-base leading-8 text-zinc-400">
-
-              <p>
-                I'm a Computer Science graduate and full-stack developer
-                who enjoys turning ideas into useful, well-crafted
-                digital products.
-              </p>
-
-              <p>
-                I enjoy working across the entire development process —
-                from understanding a problem and designing a solution
-                to building, testing, and refining the final product.
-              </p>
-
-              <p>
-                While I enjoy full-stack development, I'm particularly
-                interested in backend engineering, system architecture,
-                and building applications that are reliable and
-                maintainable.
-              </p>
-
-            </div>
-
-          </div>
-
-          {/* ==========================================
-              QUICK FACTS
-          ========================================== */}
-
-          <div className="grid gap-8">
-
-            {/* Education */}
-
-            <div className="about-reveal rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-sm">
-
-              <p className="text-sm uppercase tracking-[0.2em] text-zinc-500">
-                Education
-              </p>
-
-              <h3 className="mt-4 text-xl font-semibold text-white">
-                Computer Science & Engineering
-              </h3>
-
-              <p className="mt-2 text-zinc-400">
-                Bachelor's Degree
-              </p>
-
-              <p className="mt-2 text-sm text-zinc-600">
-                AMERICAN INTERNATIONAL UNIVERSITY-BANGLADESH (AIUB)
-              </p>
-
-            </div>
-
-            {/* Development Focus */}
-
-            <div className="about-reveal rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-sm">
-
-              <p className="text-sm uppercase tracking-[0.2em] text-zinc-500">
-                Development Focus
-              </p>
-
-              <div className="mt-5 space-y-3">
-
-                <div className="flex items-center gap-3">
-                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-400" />
-                  <span className="text-zinc-300">
-                    Full-Stack Web Development
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
-                  <span className="text-zinc-300">
-                    Backend Engineering
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="h-1.5 w-1.5 rounded-full bg-pink-400" />
-                  <span className="text-zinc-300">
-                    System Architecture
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-400" />
-                  <span className="text-zinc-300">
-                    Problem Solving
-                  </span>
-                </div>
+                <p className="mt-5 leading-7 text-zinc-500">
+                  I enjoy working across the entire development
+                  process — from understanding a problem and
+                  designing a solution to building, testing, and
+                  refining the final product.
+                </p>
 
               </div>
 
-            </div>
+              {/* EDUCATION */}
 
-          </div>
-        </div>
+              <div className="about-card rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
 
-        {/* ==========================================
-            JOURNEY
-        ========================================== */}
-
-        <div className="about-reveal mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-sm sm:p-10">
-
-          <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr]">
-
-            <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-zinc-500">
-                My Journey
-              </p>
-
-              <h3 className="mt-3 text-2xl font-semibold text-white">
-                Always learning.
-                <br />
-                Always building.
-              </h3>
-            </div>
-
-            <div className="space-y-6">
-
-              {/* Education */}
-
-              <div className="relative border-l border-zinc-800 pl-6">
-
-                <span className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full bg-indigo-400" />
-
-                <p className="text-sm text-indigo-400">
+                <p className="text-sm font-medium uppercase tracking-[0.25em] text-zinc-500">
                   Education
                 </p>
 
-                <h4 className="mt-1 font-medium text-white">
+                <h3 className="mt-5 text-xl font-semibold text-white">
                   Computer Science & Engineering
-                </h4>
+                </h3>
 
-                <p className="mt-2 text-sm leading-6 text-zinc-500">
-                  Built a strong foundation in programming, software
-                  development, databases, algorithms, and computer
-                  science fundamentals.
+                <p className="mt-2 text-zinc-400">
+                  Bachelor&apos;s Degree
+                </p>
+
+                <p className="mt-4 text-xs leading-5 tracking-wide text-zinc-600">
+                  AMERICAN INTERNATIONAL UNIVERSITY-BANGLADESH
+                  <br />
+                  (AIUB)
+                </p>
+
+              </div>
+            </div>
+
+            {/* ======================================
+                SECONDARY CARDS
+            ====================================== */}
+
+            <div className="mt-8 grid gap-8 md:grid-cols-2">
+
+              {/* WHAT I ENJOY */}
+
+              <div className="about-card rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+
+                <p className="text-sm font-medium uppercase tracking-[0.25em] text-zinc-500">
+                  What I Enjoy
+                </p>
+
+                <h3 className="mt-4 text-2xl font-semibold text-white">
+                  Solving problems.
+                  <br />
+                  Building solutions.
+                </h3>
+
+                <p className="mt-4 leading-7 text-zinc-500">
+                  I enjoy taking complex problems, breaking them
+                  down into smaller pieces, and turning them into
+                  practical software that people can actually use.
                 </p>
 
               </div>
 
-              {/* Development */}
+              {/* PHILOSOPHY */}
 
-              <div className="relative border-l border-zinc-800 pl-6">
+              <div className="about-card rounded-3xl border border-indigo-400/10 bg-indigo-500/[0.04] p-8 backdrop-blur-xl">
 
-                <span className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full bg-purple-400" />
-
-                <p className="text-sm text-purple-400">
-                  Development
+                <p className="text-sm font-medium uppercase tracking-[0.25em] text-indigo-400">
+                  Philosophy
                 </p>
 
-                <h4 className="mt-1 font-medium text-white">
-                  From learning to building
-                </h4>
+                <h3 className="mt-4 text-2xl font-semibold text-white">
+                  Learn. Build. Improve.
+                </h3>
 
-                <p className="mt-2 text-sm leading-6 text-zinc-500">
-                  Started building real-world applications and
-                  exploring both frontend and backend development
-                  through hands-on projects.
-                </p>
-
-              </div>
-
-              {/* Current */}
-
-              <div className="relative border-l border-zinc-800 pl-6">
-
-                <span className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full bg-pink-400" />
-
-                <p className="text-sm text-pink-400">
-                  Today
-                </p>
-
-                <h4 className="mt-1 font-medium text-white">
-                  Growing as a full-stack developer
-                </h4>
-
-                <p className="mt-2 text-sm leading-6 text-zinc-500">
-                  Continuing to deepen my knowledge of backend
-                  engineering, system design, application architecture,
-                  and production-ready development.
+                <p className="mt-4 leading-7 text-zinc-400">
+                  I believe the best way to grow is to keep learning,
+                  build real things, understand mistakes, and
+                  continuously improve.
                 </p>
 
               </div>
@@ -278,52 +321,6 @@ export default function About() {
             </div>
           </div>
         </div>
-
-        {/* ==========================================
-            PHILOSOPHY
-        ========================================== */}
-
-        <div className="about-reveal mt-8 grid gap-8 md:grid-cols-2">
-
-          <div className="rounded-3xl border border-indigo-400/10 bg-indigo-500/[0.04] p-8 backdrop-blur-sm">
-
-            <p className="text-sm uppercase tracking-[0.2em] text-indigo-400">
-              What Drives Me
-            </p>
-
-            <h3 className="mt-4 text-2xl font-semibold text-white">
-              Building things that matter.
-            </h3>
-
-            <p className="mt-4 leading-7 text-zinc-400">
-              I enjoy taking a problem, breaking it down, and turning
-              it into a practical solution. For me, development is
-              about more than writing code — it's about understanding
-              why something should exist and making it work well.
-            </p>
-
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-sm">
-
-            <p className="text-sm uppercase tracking-[0.2em] text-zinc-500">
-              My Philosophy
-            </p>
-
-            <h3 className="mt-4 text-2xl font-semibold text-white">
-              Learn. Build. Improve.
-            </h3>
-
-            <p className="mt-4 leading-7 text-zinc-400">
-              I believe the best way to grow as a developer is to
-              continuously learn, build real projects, make mistakes,
-              understand them, and keep improving.
-            </p>
-
-          </div>
-
-        </div>
-
       </div>
     </section>
   );
