@@ -1,13 +1,51 @@
-import Image from "next/image";
+import Hero from "./components/Hero";
+import ThreeBackground from "./components/ThreeBackground";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-  <main>
-    <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent sm:text-6xl">
-      Welcome to My Portfolio!
-    </h1>
-  </main>
-</div>
+    <>
+      <ThreeBackground />
+
+      <main className="relative z-10">
+
+        <Hero />
+
+        <section
+          id="about"
+          className="min-h-screen"
+        >
+          {/* About */}
+        </section>
+
+        <section
+          id="skills"
+          className="min-h-screen"
+        >
+          {/* Skills */}
+        </section>
+
+        <section
+          id="projects"
+          className="min-h-screen"
+        >
+          {/* Projects */}
+        </section>
+
+        <section
+          id="experience"
+          className="min-h-screen"
+        >
+          {/* Experience */}
+        </section>
+
+        <section
+          id="contact"
+          className="min-h-screen"
+        >
+          {/* Contact */}
+        </section>
+
+      </main>
+    </>
   );
 }
