@@ -183,7 +183,7 @@ export default function Navbar() {
       if (window.scrollY > 20) {
         gsap.to(header, {
           backdropFilter: "blur(14px)",
-          backgroundColor: "rgba(255,255,255,0.7)",
+          backgroundColor: "transparent",
           boxShadow: "0 4px 30px rgba(0,0,0,0.05)",
           duration: 0.3,
           ease: "power2.out",
@@ -192,7 +192,7 @@ export default function Navbar() {
       } else {
         gsap.to(header, {
           backdropFilter: "blur(0px)",
-          backgroundColor: "rgba(255,255,255,0)",
+          backgroundColor: "transparent",
           boxShadow: "none",
           duration: 0.3,
           ease: "power2.out",
