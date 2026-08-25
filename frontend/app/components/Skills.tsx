@@ -28,22 +28,22 @@ const skillGroups = [
       {
         name: "JavaScript",
         icon: SiJavascript,
-        keyword: "Dynamic",
+        color: "#F7DF1E",
       },
       {
         name: "TypeScript",
         icon: SiTypescript,
-        keyword: "Typed",
+        color: "#3178C6",
       },
       {
         name: "React",
         icon: SiReact,
-        keyword: "Components",
+        color: "#61DAFB",
       },
       {
         name: "Next.js",
         icon: SiNextdotjs,
-        keyword: "Full-Stack",
+        color: "#FFFFFF",
       },
     ],
   },
@@ -55,17 +55,17 @@ const skillGroups = [
       {
         name: "Node.js",
         icon: SiNodedotjs,
-        keyword: "Runtime",
+        color: "#5FA04E",
       },
       {
         name: "NestJS",
         icon: SiNestjs,
-        keyword: "APIs",
+        color: "#E0234E",
       },
       {
         name: "Django",
         icon: SiDjango,
-        keyword: "Backend",
+        color: "#44B78B",
       },
     ],
   },
@@ -77,7 +77,7 @@ const skillGroups = [
       {
         name: "PostgreSQL",
         icon: SiPostgresql,
-        keyword: "Relational",
+        color: "#4169E1",
       },
     ],
   },
@@ -89,12 +89,12 @@ const skillGroups = [
       {
         name: "Docker",
         icon: SiDocker,
-        keyword: "Containers",
+        color: "#2496ED",
       },
       {
         name: "Git",
         icon: SiGit,
-        keyword: "Version Control",
+        color: "#F05032",
       },
     ],
   },
@@ -103,37 +103,33 @@ const skillGroups = [
 export default function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
     const title = titleRef.current;
+    const cardsContainer = cardsRef.current;
 
-    if (!section || !title) return;
+    if (!section || !title || !cardsContainer) return;
 
     const ctx = gsap.context(() => {
-      const label = section.querySelector(".skills-label");
-
       const characters =
         title.querySelectorAll(".skills-character");
 
       const cards =
-        gsap.utils.toArray<HTMLElement>(".skill-deck-card");
+        gsap.utils.toArray<HTMLElement>(".skill-card");
 
       const prefersReducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
-      // ==========================================
-      // REDUCED MOTION
-      // ==========================================
+      /*
+       * ==========================================
+       * REDUCED MOTION
+       * ==========================================
+       */
 
       if (prefersReducedMotion) {
-        gsap.set(label, {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-        });
-
         gsap.set(characters, {
           opacity: 1,
           y: 0,
@@ -142,30 +138,18 @@ export default function Skills() {
 
         gsap.set(cards, {
           opacity: 1,
-          x: 0,
-          y: 0,
           scale: 1,
-          rotate: 0,
-          filter: "blur(0px)",
+          y: 0,
         });
 
         return;
       }
 
-      // ==========================================
-      // INITIAL HEADER STATE
-      // ==========================================
-
-      gsap.set(label, {
-        opacity: 0,
-        y: 20,
-        filter: "blur(8px)",
-      });
-
-      // ==========================================
-      // TITLE INITIAL STATE
-      // SAME AS ABOUT PAGE
-      // ==========================================
+      /*
+       * ==========================================
+       * INITIAL TITLE STATE
+       * ==========================================
+       */
 
       gsap.set(characters, {
         opacity: 0,
@@ -173,200 +157,220 @@ export default function Skills() {
         filter: "blur(8px)",
       });
 
-      // ==========================================
-      // CARD ENTER DIRECTIONS
-      //
-      // 01 → Bottom
-      // 02 → Right
-      // 03 → Top
-      // 04 → Left
-      // ==========================================
+      /*
+       * ==========================================
+       * INITIAL CARD STATE
+       * ==========================================
+       *
+       * Frontend is visible first.
+       * Everything else starts hidden.
+       */
 
-      const enterDirections = [
-        {
-          x: 0,
-          y: "120%",
-          rotate: 8,
-        },
-        {
-          x: "120%",
-          y: 0,
-          rotate: 10,
-        },
-        {
-          x: 0,
-          y: "-120%",
-          rotate: -8,
-        },
-        {
-          x: "-120%",
-          y: 0,
-          rotate: -10,
-        },
-      ];
-
-      // ==========================================
-      // INITIAL CARD STATES
-      // ==========================================
-
-      cards.forEach((card, index) => {
-        const direction = enterDirections[index];
-
-        gsap.set(card, {
-          x: direction.x,
-          y: direction.y,
-          scale: 0.85,
-          rotate: direction.rotate,
-          opacity: 0,
-          zIndex: 10 + index,
-          filter: "blur(10px)",
-        });
+      gsap.set(cards, {
+        opacity: 0,
+        scale: 0.96,
+        y: 20,
+        pointerEvents: "none",
       });
 
-      // ==========================================
-      // MAIN SCROLL TIMELINE
-      // ==========================================
+      gsap.set(cards[0], {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        pointerEvents: "auto",
+      });
+
+      /*
+       * ==========================================
+       * SCROLL TIMELINE
+       * ==========================================
+       */
 
       const timeline = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-
           start: "top top",
-
-          end: `+=${cards.length * 50}%`,
-
+          end: "+=300%",
           scrub: 1,
-
           pin: true,
-
           pinSpacing: true,
-
           anticipatePin: 1,
-
           invalidateOnRefresh: true,
         },
       });
 
-      // ==========================================
-      // 1. SKILLS LABEL
-      // ==========================================
-
-      timeline.to(label, {
-        opacity: 1,
-        y: 0,
-        filter: "blur(0px)",
-        duration: 0.12,
-        ease: "power3.out",
-      });
-
-      // ==========================================
-      // 2. WRITE
-      // "TOOLS I USE TO BUILD."
-      //
-      // EXACT SAME STYLE AS ABOUT
-      // ==========================================
+      /*
+       * ==========================================
+       * TITLE ANIMATION
+       * ==========================================
+       */
 
       timeline.to(characters, {
         opacity: 1,
         y: 0,
         filter: "blur(0px)",
-        duration: 0.08,
+        duration: 0.8,
         stagger: 0.045,
         ease: "power2.out",
       });
 
-      // ==========================================
-      // 3. SMALL HOLD
-      // ==========================================
+      /*
+       * ==========================================
+       * FRONTEND
+       * ==========================================
+       *
+       * Frontend is shown first.
+       */
 
       timeline.to(
-        {},
+        cards[0],
         {
-          duration: 0.2,
-        }
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power2.out",
+        },
+        "<"
       );
 
-      // ==========================================
-      // 4. FIRST CARD
-      //
-      // Comes from bottom
-      // ==========================================
+      /*
+       * Hold Frontend
+       */
 
-      timeline.to(cards[0], {
-        x: 0,
-        y: 0,
-        rotate: 0,
-        scale: 1,
-        opacity: 1,
-        filter: "blur(0px)",
-        duration: 0.8,
-        ease: "power3.out",
-      });
+      timeline.to({}, { duration: 0.8 });
 
-      // ==========================================
-      // 5. CARD TRANSITIONS
-      // ==========================================
+      /*
+       * ==========================================
+       * FRONTEND → BACKEND
+       * ==========================================
+       *
+       * Frontend fades out.
+       * Backend fades in at the same time.
+       */
 
-      cards.forEach((card, index) => {
-        const nextCard = cards[index + 1];
-
-        if (!nextCard) return;
-
-        const nextDirection = enterDirections[index + 1];
-
-        // ========================================
-        // CURRENT CARD EXIT
-        // ========================================
-
-        timeline.to(card, {
-          x: 0,
-          y: index % 2 === 0 ? "-120%" : "120%",
-          rotate: index % 2 === 0 ? -8 : 8,
-          scale: 0.85,
+      timeline.to(
+        cards[0],
+        {
           opacity: 0,
-          filter: "blur(10px)",
-          duration: 1,
+          scale: 0.96,
+          y: -20,
+          pointerEvents: "none",
+          duration: 0.8,
           ease: "power2.inOut",
-        });
-
-        // ========================================
-        // NEXT CARD ENTER
-        // ========================================
-
-        timeline.fromTo(
-          nextCard,
-          {
-            x: nextDirection.x,
-            y: nextDirection.y,
-            rotate: nextDirection.rotate,
-            scale: 0.85,
-            opacity: 0,
-            filter: "blur(10px)",
-          },
-          {
-            x: 0,
-            y: 0,
-            rotate: 0,
-            scale: 1,
-            opacity: 1,
-            filter: "blur(0px)",
-            duration: 1,
-            ease: "power3.out",
-          },
-          "<"
-        );
-      });
-
-      // ==========================================
-      // 6. FINAL HOLD
-      // ==========================================
-
-      timeline.to(
-        {},
-        {
-          duration: 0.25,
         }
       );
+
+      timeline.fromTo(
+        cards[1],
+        {
+          opacity: 0,
+          scale: 0.96,
+          y: 20,
+          pointerEvents: "none",
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          pointerEvents: "auto",
+          duration: 0.8,
+          ease: "power2.inOut",
+        },
+        "<"
+      );
+
+      /*
+       * Hold Backend
+       */
+
+      timeline.to({}, { duration: 0.8 });
+
+      /*
+       * ==========================================
+       * BACKEND → DATABASE
+       * ==========================================
+       */
+
+      timeline.to(
+        cards[1],
+        {
+          opacity: 0,
+          scale: 0.96,
+          y: -20,
+          pointerEvents: "none",
+          duration: 0.8,
+          ease: "power2.inOut",
+        }
+      );
+
+      timeline.fromTo(
+        cards[2],
+        {
+          opacity: 0,
+          scale: 0.96,
+          y: 20,
+          pointerEvents: "none",
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          pointerEvents: "auto",
+          duration: 0.8,
+          ease: "power2.inOut",
+        },
+        "<"
+      );
+
+      /*
+       * Hold Database
+       */
+
+      timeline.to({}, { duration: 0.8 });
+
+      /*
+       * ==========================================
+       * DATABASE → TOOLS
+       * ==========================================
+       */
+
+      timeline.to(
+        cards[2],
+        {
+          opacity: 0,
+          scale: 0.96,
+          y: -20,
+          pointerEvents: "none",
+          duration: 0.8,
+          ease: "power2.inOut",
+        }
+      );
+
+      timeline.fromTo(
+        cards[3],
+        {
+          opacity: 0,
+          scale: 0.96,
+          y: 20,
+          pointerEvents: "none",
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          pointerEvents: "auto",
+          duration: 0.8,
+          ease: "power2.inOut",
+        },
+        "<"
+      );
+
+      /*
+       * Final hold
+       */
+
+      timeline.to({}, { duration: 1 });
     }, section);
 
     return () => {
@@ -385,21 +389,14 @@ export default function Skills() {
       <div className="flex min-h-screen items-center px-6 py-24 lg:px-8">
         <div className="mx-auto w-full max-w-7xl">
 
-          {/* ==========================================
-              HEADER
-          ========================================== */}
+          {/* HEADER */}
 
           <div className="mb-16 max-w-6xl">
-
-            {/* LABEL */}
-
-            <div className="skills-label mb-8 text-center">
+            <div className="mb-8 text-center">
               <p className="text-xs font-medium uppercase tracking-[0.4em] text-indigo-400">
                 Skills
               </p>
             </div>
-
-            {/* TITLE */}
 
             <div className="flex justify-center">
               <h2
@@ -449,27 +446,17 @@ export default function Skills() {
             </div>
           </div>
 
-          {/* ==========================================
-              CARD DECK
-          ========================================== */}
+          {/* SKILLS */}
 
           <div
-            className="
-              relative
-              mx-auto
-              h-[480px]
-              w-full
-              max-w-5xl
-            "
-            style={{
-              perspective: "1400px",
-            }}
+            ref={cardsRef}
+            className="relative mx-auto h-[420px] w-full max-w-5xl"
           >
             {skillGroups.map((group) => (
               <div
                 key={group.title}
                 className="
-                  skill-deck-card
+                  skill-card
                   absolute
                   inset-0
                   rounded-[2rem]
@@ -479,20 +466,13 @@ export default function Skills() {
                   p-7
                   shadow-2xl
                   backdrop-blur-xl
-                  will-change-transform
                   sm:p-10
                 "
-                style={{
-                  transformStyle: "preserve-3d",
-                }}
               >
-                {/* ======================================
-                    CARD HEADER
-                ====================================== */}
+                {/* CARD HEADER */}
 
                 <div className="flex items-start justify-between">
                   <div>
-
                     <p className="text-sm font-medium uppercase tracking-[0.25em] text-indigo-400">
                       {group.number}
                     </p>
@@ -504,7 +484,6 @@ export default function Skills() {
                     <p className="mt-3 max-w-xl text-zinc-500">
                       {group.description}
                     </p>
-
                   </div>
 
                   <span className="hidden select-none text-8xl font-bold leading-none text-white/[0.03] sm:block">
@@ -512,9 +491,7 @@ export default function Skills() {
                   </span>
                 </div>
 
-                {/* ======================================
-                    SKILLS GRID
-                ====================================== */}
+                {/* SKILLS GRID */}
 
                 <div className="mt-10 grid gap-4 sm:grid-cols-2">
                   {group.skills.map((skill) => {
@@ -536,10 +513,12 @@ export default function Skills() {
                           transition-all
                           duration-300
                           hover:-translate-y-1
-                          hover:border-indigo-400/30
-                          hover:bg-indigo-500/[0.05]
+                          hover:border-white/20
+                          hover:bg-white/[0.06]
                         "
                       >
+                        {/* ICON */}
+
                         <div
                           className="
                             flex
@@ -551,42 +530,36 @@ export default function Skills() {
                             rounded-xl
                             border
                             border-white/10
-                            bg-white/[0.05]
-                            transition-all
-                            duration-300
-                            group-hover:border-indigo-400/30
-                            group-hover:bg-indigo-500/10
+                            bg-black/20
                           "
                         >
                           <Icon
                             className="
                               text-2xl
-                              text-zinc-300
+                              text-zinc-400
+                              grayscale
                               transition-all
                               duration-300
                               group-hover:scale-110
-                              group-hover:text-white
+                              group-hover:grayscale-0
                             "
+                            style={{
+                              color: skill.color,
+                            }}
                           />
                         </div>
 
-                        <div>
-                          <p className="font-medium text-white">
-                            {skill.name}
-                          </p>
+                        {/* TOOL NAME */}
 
-                          <p className="mt-0.5 text-xs text-zinc-500">
-                            {skill.keyword}
-                          </p>
-                        </div>
+                        <p className="font-medium text-white">
+                          {skill.name}
+                        </p>
                       </div>
                     );
                   })}
                 </div>
 
-                {/* ======================================
-                    FOOTER
-                ====================================== */}
+                {/* FOOTER */}
 
                 <div
                   className="
