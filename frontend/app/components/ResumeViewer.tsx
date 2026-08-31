@@ -17,7 +17,7 @@ export default function ResumeViewer({
   onClose,
 }: ResumeViewerProps) {
   const resumeFileId =
-    "1m0LuBfrsh2yM3kL5HWYc92LtC8Gd2uiE";
+    "1GCpQEZvWmzbm0qyIOSgY6ZofG09ggbYd";
 
   const previewUrl =
     `https://drive.google.com/file/d/${resumeFileId}/preview`;
