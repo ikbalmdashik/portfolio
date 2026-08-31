@@ -303,7 +303,7 @@ export default function Hero({
               <button
                 type="button"
                 onClick={onResumeClick}
-                className="flex items-center gap-2 transition-colors duration-300 hover:text-white"
+                className="flex items-center gap-2 transition-colors cursor-pointer duration-300 hover:text-white"
               >
                 <FileText size={16} />
 

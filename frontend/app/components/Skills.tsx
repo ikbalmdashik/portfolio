@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -15,6 +15,11 @@ import {
   SiPostgresql,
   SiDocker,
   SiGit,
+  SiTailwindcss,
+  SiSass,
+  SiMongodb,
+  SiRedis,
+  SiNginx,
 } from "react-icons/si";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -29,21 +34,37 @@ const skillGroups = [
         name: "JavaScript",
         icon: SiJavascript,
         color: "#F7DF1E",
+        info: "ES6+, Async/Await, DOM Manipulation",
       },
       {
         name: "TypeScript",
         icon: SiTypescript,
         color: "#3178C6",
+        info: "Type Safety, Interfaces, Generics",
       },
       {
         name: "React",
         icon: SiReact,
         color: "#61DAFB",
+        info: "Hooks, Context API, Component Architecture",
       },
       {
         name: "Next.js",
         icon: SiNextdotjs,
         color: "#FFFFFF",
+        info: "SSR, SSG, API Routes, App Router",
+      },
+      {
+        name: "Tailwind CSS",
+        icon: SiTailwindcss,
+        color: "#06B6D4",
+        info: "Utility-First CSS, Responsive Design",
+      },
+      {
+        name: "Sass",
+        icon: SiSass,
+        color: "#CC6699",
+        info: "Variables, Mixins, Nested Styles",
       },
     ],
   },
@@ -56,16 +77,19 @@ const skillGroups = [
         name: "Node.js",
         icon: SiNodedotjs,
         color: "#5FA04E",
+        info: "Express, REST APIs, Microservices",
       },
       {
         name: "NestJS",
         icon: SiNestjs,
         color: "#E0234E",
+        info: "Modular Architecture, TypeScript, GraphQL",
       },
       {
         name: "Django",
         icon: SiDjango,
         color: "#44B78B",
+        info: "ORM, Admin Panel, REST Framework",
       },
     ],
   },
@@ -78,6 +102,19 @@ const skillGroups = [
         name: "PostgreSQL",
         icon: SiPostgresql,
         color: "#4169E1",
+        info: "Complex Queries, Indexing, ACID Compliance",
+      },
+      {
+        name: "MongoDB",
+        icon: SiMongodb,
+        color: "#47A248",
+        info: "NoSQL, Document Database, Aggregation",
+      },
+      {
+        name: "Redis",
+        icon: SiRedis,
+        color: "#DC382D",
+        info: "Caching, Session Management, Pub/Sub",
       },
     ],
   },
@@ -90,11 +127,19 @@ const skillGroups = [
         name: "Docker",
         icon: SiDocker,
         color: "#2496ED",
+        info: "Containerization, Docker Compose, CI/CD",
       },
       {
         name: "Git",
         icon: SiGit,
         color: "#F05032",
+        info: "Version Control, Branching, Collaboration",
+      },
+      {
+        name: "Nginx",
+        icon: SiNginx,
+        color: "#009639",
+        info: "Reverse Proxy, Load Balancing, Web Server",
       },
     ],
   },
@@ -103,30 +148,94 @@ const skillGroups = [
 export default function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const cardsRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const bigLabelRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const cardsContainerRef = useRef<HTMLDivElement>(null);
+  const frontendCardRef = useRef<HTMLDivElement>(null);
+
+  const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+
+    window.addEventListener("resize", checkMobile);
+
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+    };
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
     const title = titleRef.current;
-    const cardsContainer = cardsRef.current;
+    const label = labelRef.current;
+    const bigLabel = bigLabelRef.current;
+    const header = headerRef.current;
+    const cardsContainer = cardsContainerRef.current;
+    const frontendCard = frontendCardRef.current;
 
-    if (!section || !title || !cardsContainer) return;
+    if (
+      !section ||
+      !title ||
+      !label ||
+      !bigLabel ||
+      !header ||
+      !cardsContainer ||
+      !frontendCard
+    ) {
+      return;
+    }
 
     const ctx = gsap.context(() => {
-      const characters =
-        title.querySelectorAll(".skills-character");
-
-      const cards =
-        gsap.utils.toArray<HTMLElement>(".skill-card");
+      const characters = title.querySelectorAll(".skills-character");
+      const cards = cardsContainer.querySelectorAll(".skill-card");
 
       const prefersReducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
       ).matches;
 
       /*
-       * ==========================================
-       * REDUCED MOTION
-       * ==========================================
+       * Initial states
+       */
+
+      gsap.set(bigLabel, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+      });
+
+      gsap.set(label, {
+        opacity: 0,
+        scale: 0.4,
+        y: -20,
+      });
+
+      gsap.set(characters, {
+        opacity: 0,
+        y: 30,
+        filter: "blur(4px)",
+      });
+
+      gsap.set(cards, {
+        opacity: 0,
+        y: 30,
+        scale: 0.98,
+      });
+
+      // Set initial position for title
+      gsap.set(title, {
+        y: 0,
+        opacity: 1,
+      });
+
+      /*
+       * Reduced motion
        */
 
       if (prefersReducedMotion) {
@@ -138,239 +247,185 @@ export default function Skills() {
 
         gsap.set(cards, {
           opacity: 1,
-          scale: 1,
           y: 0,
+          scale: 1,
         });
 
         return;
       }
 
       /*
-       * ==========================================
-       * INITIAL TITLE STATE
-       * ==========================================
+       * Pin the Skills header.
        */
 
-      gsap.set(characters, {
-        opacity: 0,
-        y: 35,
-        filter: "blur(8px)",
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top top",
+        end: "bottom bottom",
+        pin: header,
+        pinSpacing: false,
+        anticipatePin: 1,
       });
 
       /*
-       * ==========================================
-       * INITIAL CARD STATE
-       * ==========================================
-       *
-       * Frontend is visible first.
-       * Everything else starts hidden.
+       * Subtitle character animation.
        */
 
-      gsap.set(cards, {
-        opacity: 0,
-        scale: 0.96,
-        y: 20,
-        pointerEvents: "none",
-      });
-
-      gsap.set(cards[0], {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        pointerEvents: "auto",
-      });
-
-      /*
-       * ==========================================
-       * SCROLL TIMELINE
-       * ==========================================
-       */
-
-      const timeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: "+=300%",
-          scrub: 1,
-          pin: true,
-          pinSpacing: true,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
-      });
-
-      /*
-       * ==========================================
-       * TITLE ANIMATION
-       * ==========================================
-       */
-
-      timeline.to(characters, {
+      gsap.to(characters, {
         opacity: 1,
         y: 0,
         filter: "blur(0px)",
-        duration: 0.8,
-        stagger: 0.045,
+        duration: 0.3,
+        stagger: 0.02,
         ease: "power2.out",
+
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "+=8%",
+          scrub: 1,
+          toggleActions: "play none none none",
+        },
       });
 
       /*
-       * ==========================================
-       * FRONTEND
-       * ==========================================
-       *
-       * Frontend is shown first.
+       * Cards animation.
        */
 
-      timeline.to(
-        cards[0],
+      gsap.to(cards, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.3,
+        stagger: 0.08,
+        ease: "power2.out",
+
+        scrollTrigger: {
+          trigger: section,
+          start: "top+=5% top",
+          end: "top+=20% top",
+          scrub: 1,
+          toggleActions: "play none none none",
+        },
+      });
+
+      /*
+       * Large Skills -> Small Skills transition.
+       */
+
+      const transitionTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: "top+=15% top",
+          end: "top+=30% top",
+          scrub: 1,
+          toggleActions: "play none none none",
+        },
+      });
+
+      transitionTimeline.to(bigLabel, {
+        opacity: 0,
+        scale: 0.5,
+        y: -30,
+        duration: 0.3,
+        ease: "power2.in",
+      });
+
+      transitionTimeline.to(
+        label,
         {
           opacity: 1,
           scale: 1,
           y: 0,
-          duration: 0.8,
+          duration: 0.3,
           ease: "power2.out",
         },
-        "<"
+        "-=0.2"
       );
 
       /*
-       * Hold Frontend
-       */
-
-      timeline.to({}, { duration: 0.8 });
-
-      /*
-       * ==========================================
-       * FRONTEND → BACKEND
-       * ==========================================
+       * ---------------------------------------------------------
+       * FRONTEND CARD -> SUBTITLE COLLISION
+       * ---------------------------------------------------------
        *
-       * Frontend fades out.
-       * Backend fades in at the same time.
+       * The subtitle moves up when the Frontend card approaches it
+       * and continues scrolling up with the card.
        */
 
-      timeline.to(
-        cards[0],
-        {
-          opacity: 0,
-          scale: 0.96,
-          y: -20,
-          pointerEvents: "none",
-          duration: 0.8,
-          ease: "power2.inOut",
-        }
-      );
+      // Ensure the title has will-change for better performance
+      gsap.set(title, {
+        willChange: "transform, opacity",
+      });
 
-      timeline.fromTo(
-        cards[1],
-        {
-          opacity: 0,
-          scale: 0.96,
-          y: 20,
-          pointerEvents: "none",
+      // Create scroll trigger for title animation
+      ScrollTrigger.create({
+        trigger: frontendCard,
+        start: "top 40%",
+        end: "top -20%",
+        scrub: 1,
+        invalidateOnRefresh: true,
+
+        onUpdate: (self) => {
+          const progress = Math.min(self.progress, 1);
+          const moveDistance = 300;
+
+          // Move the title up with the card
+          gsap.to(title, {
+            y: -moveDistance * progress,
+            opacity: 1 - progress * 0.2,
+            duration: 0.15,
+            overwrite: "auto",
+            ease: "power1.out",
+          });
         },
-        {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          pointerEvents: "auto",
-          duration: 0.8,
-          ease: "power2.inOut",
-        },
-        "<"
-      );
+      });
 
       /*
-       * Hold Backend
+       * Sticky label shrink on scroll.
        */
 
-      timeline.to({}, { duration: 0.8 });
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
 
-      /*
-       * ==========================================
-       * BACKEND → DATABASE
-       * ==========================================
-       */
+        onUpdate: (self) => {
+          const progress = self.progress;
+          const mobile = window.innerWidth < 768;
 
-      timeline.to(
-        cards[1],
-        {
-          opacity: 0,
-          scale: 0.96,
-          y: -20,
-          pointerEvents: "none",
-          duration: 0.8,
-          ease: "power2.inOut",
-        }
-      );
+          if (mobile) {
+            gsap.to(label, {
+              opacity: 0,
+              duration: 0.1,
+              overwrite: "auto",
+            });
 
-      timeline.fromTo(
-        cards[2],
-        {
-          opacity: 0,
-          scale: 0.96,
-          y: 20,
-          pointerEvents: "none",
+            return;
+          }
+
+          if (progress > 0.2 && progress < 0.8) {
+            const shrinkProgress = (progress - 0.2) / 0.6;
+
+            const scale = 1 - shrinkProgress * 0.6;
+            const labelOpacity = 1 - shrinkProgress * 0.3;
+            const yOffset = shrinkProgress * 15;
+
+            gsap.to(label, {
+              scale: Math.max(scale, 0.4),
+              opacity: Math.max(labelOpacity, 0.7),
+              y: -yOffset,
+              duration: 0.1,
+              overwrite: "auto",
+            });
+          } else if (progress >= 0.8 || progress <= 0.2) {
+            gsap.to(label, {
+              opacity: 0,
+              duration: 0.1,
+              overwrite: "auto",
+            });
+          }
         },
-        {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          pointerEvents: "auto",
-          duration: 0.8,
-          ease: "power2.inOut",
-        },
-        "<"
-      );
-
-      /*
-       * Hold Database
-       */
-
-      timeline.to({}, { duration: 0.8 });
-
-      /*
-       * ==========================================
-       * DATABASE → TOOLS
-       * ==========================================
-       */
-
-      timeline.to(
-        cards[2],
-        {
-          opacity: 0,
-          scale: 0.96,
-          y: -20,
-          pointerEvents: "none",
-          duration: 0.8,
-          ease: "power2.inOut",
-        }
-      );
-
-      timeline.fromTo(
-        cards[3],
-        {
-          opacity: 0,
-          scale: 0.96,
-          y: 20,
-          pointerEvents: "none",
-        },
-        {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          pointerEvents: "auto",
-          duration: 0.8,
-          ease: "power2.inOut",
-        },
-        "<"
-      );
-
-      /*
-       * Final hold
-       */
-
-      timeline.to({}, { duration: 1 });
+      });
     }, section);
 
     return () => {
@@ -380,211 +435,226 @@ export default function Skills() {
 
   const statement = "Tools I use to build.";
 
+  const handleSkillClick = (skillName: string) => {
+    if (isMobile) {
+      setHoveredSkill(
+        hoveredSkill === skillName ? null : skillName
+      );
+    }
+  };
+
   return (
     <section
       ref={sectionRef}
       id="skills"
-      className="relative overflow-hidden"
+      className="relative min-h-[280vh]"
     >
-      <div className="flex min-h-screen items-center px-6 py-24 lg:px-8">
-        <div className="mx-auto w-full max-w-7xl">
+      {/* Sticky Label - Below Navbar */}
+      <div
+        ref={labelRef}
+        className="fixed left-0 right-0 z-50 pointer-events-none hidden md:block"
+        style={{
+          top: "clamp(70px, 80px, 90px)",
+          transformOrigin: "center center",
+        }}
+      >
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center">
+            <p className="text-xs font-medium uppercase tracking-[0.4em] text-indigo-400 whitespace-nowrap">
+              Skills
+            </p>
+          </div>
+        </div>
+      </div>
 
-          {/* HEADER */}
+      {/* Sticky Header */}
+      <div
+        ref={headerRef}
+        className="sticky top-0 z-40 pt-16 sm:pt-20 md:pt-24 pb-4 sm:pb-6 bg-transparent"
+      >
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
 
-          <div className="mb-16 max-w-6xl">
-            <div className="mb-8 text-center">
-              <p className="text-xs font-medium uppercase tracking-[0.4em] text-indigo-400">
-                Skills
-              </p>
-            </div>
-
-            <div className="flex justify-center">
-              <h2
-                ref={titleRef}
-                className="
-                  mx-auto
-                  max-w-6xl
-                  text-center
-                  text-5xl
-                  font-bold
-                  leading-[1.05]
-                  tracking-tight
-                  text-white
-                  sm:text-6xl
-                  md:text-7xl
-                  lg:text-8xl
-                "
+            {/* Large Skills Label */}
+            <div className="mb-2 sm:mb-4 text-center">
+              <div
+                ref={bigLabelRef}
+                className="text-center"
               >
-                {statement.split("").map((character, index) => {
-                  const isBuild =
-                    index >= "Tools I use to ".length;
+                <p className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-indigo-400 tracking-tight">
+                  Skills
+                </p>
 
-                  return (
-                    <span
-                      key={`${character}-${index}`}
-                      className={`
-                        skills-character
-                        inline-block
-                        ${
-                          isBuild
-                            ? "bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
-                            : ""
-                        }
-                      `}
-                      style={{
-                        whiteSpace:
-                          character === " "
-                            ? "pre"
-                            : "normal",
-                      }}
-                    >
-                      {character}
-                    </span>
-                  );
-                })}
-              </h2>
+                <div className="mt-1.5 h-1 w-12 sm:w-20 mx-auto bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full" />
+              </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* SKILLS */}
+      {/* Skills Content */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
+        <div className="max-w-6xl mx-auto">
+
+          {/* =================================================
+              TOOLS I USE TO BUILD
+              ================================================= */}
+
+          <div className="flex justify-center mb-16 sm:mb-20 md:mb-24">
+            <h2
+              ref={titleRef}
+              className="max-w-6xl text-center text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.05] tracking-tight text-white px-2"
+            >
+              {statement.split("").map((character, index) => {
+                const isBuild =
+                  index >= "Tools I use to ".length;
+
+                return (
+                  <span
+                    key={`${character}-${index}`}
+                    className={`skills-character inline-block ${
+                      isBuild
+                        ? "bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+                        : ""
+                    }`}
+                    style={{
+                      whiteSpace:
+                        character === " "
+                          ? "pre"
+                          : "normal",
+                    }}
+                  >
+                    {character}
+                  </span>
+                );
+              })}
+            </h2>
+          </div>
+
+          {/* =================================================
+              SKILLS CARDS
+              ================================================= */}
 
           <div
-            ref={cardsRef}
-            className="relative mx-auto h-[420px] w-full max-w-5xl"
+            ref={cardsContainerRef}
+            className="max-w-6xl mx-auto pt-40 sm:pt-52 md:pt-64 lg:pt-80"
           >
-            {skillGroups.map((group) => (
-              <div
-                key={group.title}
-                className="
-                  skill-card
-                  absolute
-                  inset-0
-                  rounded-[2rem]
-                  border
-                  border-white/10
-                  bg-white/[0.03]
-                  p-7
-                  shadow-2xl
-                  backdrop-blur-xl
-                  sm:p-10
-                "
-              >
-                {/* CARD HEADER */}
+            <div className="grid grid-cols-1 gap-4 sm:gap-6">
 
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm font-medium uppercase tracking-[0.25em] text-indigo-400">
+              {skillGroups.map((group, groupIndex) => (
+                <div
+                  key={group.title}
+                  ref={
+                    groupIndex === 0
+                      ? frontendCardRef
+                      : undefined
+                  }
+                  className="skill-card rounded-xl sm:rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 md:p-8 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:bg-white/[0.05]"
+                >
+                  {/* Card Header */}
+                  <div className="flex items-start justify-between mb-4 sm:mb-6">
+                    <div className="flex-1">
+
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <span className="text-xs sm:text-sm font-medium text-indigo-400">
+                          {group.number}
+                        </span>
+
+                        <span className="h-px flex-1 bg-gradient-to-r from-indigo-400/20 to-transparent" />
+                      </div>
+
+                      <h3 className="mt-2 text-xl sm:text-2xl md:text-3xl font-bold text-white">
+                        {group.title}
+                      </h3>
+
+                      <p className="mt-1 text-zinc-400 text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl">
+                        {group.description}
+                      </p>
+                    </div>
+
+                    <span className="hidden lg:block select-none text-6xl md:text-7xl lg:text-8xl font-bold leading-none text-white/[0.03] ml-3">
                       {group.number}
-                    </p>
-
-                    <h3 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
-                      {group.title}
-                    </h3>
-
-                    <p className="mt-3 max-w-xl text-zinc-500">
-                      {group.description}
-                    </p>
+                    </span>
                   </div>
 
-                  <span className="hidden select-none text-8xl font-bold leading-none text-white/[0.03] sm:block">
-                    {group.number}
-                  </span>
-                </div>
+                  {/* Skills Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
+                    {group.skills.map((skill) => {
+                      const Icon = skill.icon;
 
-                {/* SKILLS GRID */}
+                      const isHovered =
+                        hoveredSkill === skill.name;
 
-                <div className="mt-10 grid gap-4 sm:grid-cols-2">
-                  {group.skills.map((skill) => {
-                    const Icon = skill.icon;
-
-                    return (
-                      <div
-                        key={skill.name}
-                        className="
-                          group
-                          flex
-                          items-center
-                          gap-4
-                          rounded-2xl
-                          border
-                          border-white/10
-                          bg-white/[0.03]
-                          p-4
-                          transition-all
-                          duration-300
-                          hover:-translate-y-1
-                          hover:border-white/20
-                          hover:bg-white/[0.06]
-                        "
-                      >
-                        {/* ICON */}
-
+                      return (
                         <div
-                          className="
-                            flex
-                            h-12
-                            w-12
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-xl
-                            border
-                            border-white/10
-                            bg-black/20
-                          "
+                          key={skill.name}
+                          className={`group relative flex flex-col items-center gap-1.5 p-3 sm:p-4 rounded-lg sm:rounded-xl border transition-all duration-300 cursor-pointer ${
+                            isHovered || isMobile
+                              ? "border-indigo-400/30 bg-indigo-500/10 -translate-y-0.5 shadow-lg shadow-indigo-500/10"
+                              : "border-white/10 bg-white/[0.03] hover:border-indigo-400/20 hover:bg-white/[0.06] hover:-translate-y-0.5"
+                          }`}
+                          onMouseEnter={() =>
+                            !isMobile &&
+                            setHoveredSkill(skill.name)
+                          }
+                          onMouseLeave={() =>
+                            !isMobile &&
+                            setHoveredSkill(null)
+                          }
+                          onClick={() =>
+                            handleSkillClick(skill.name)
+                          }
                         >
-                          <Icon
-                            className="
-                              text-2xl
-                              text-zinc-400
-                              grayscale
-                              transition-all
-                              duration-300
-                              group-hover:scale-110
-                              group-hover:grayscale-0
-                            "
-                            style={{
-                              color: skill.color,
-                            }}
-                          />
+                          {/* Icon */}
+                          <div
+                            className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-lg transition-all duration-300 ${
+                              isHovered || isMobile
+                                ? "bg-indigo-500/20 scale-105"
+                                : "bg-black/20 group-hover:bg-indigo-500/10 group-hover:scale-105"
+                            }`}
+                          >
+                            <Icon
+                              className={`text-xl sm:text-2xl transition-all duration-300 ${
+                                isHovered || isMobile
+                                  ? "grayscale-0"
+                                  : "text-zinc-400 grayscale group-hover:grayscale-0"
+                              }`}
+                              style={{
+                                color:
+                                  isHovered || isMobile
+                                    ? skill.color
+                                    : undefined,
+                              }}
+                            />
+                          </div>
+
+                          {/* Skill Name */}
+                          <p className="font-medium text-white text-[10px] sm:text-xs text-center">
+                            {skill.name}
+                          </p>
+
+                          {/* Skill Info Tooltip */}
+                          <div
+                            className={`absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full bg-indigo-950/90 backdrop-blur-xl text-indigo-200 text-[10px] sm:text-xs px-2.5 py-1 rounded-lg border border-indigo-400/20 whitespace-nowrap transition-all duration-300 pointer-events-none z-20 ${
+                              isHovered ||
+                              (isMobile &&
+                                hoveredSkill === skill.name)
+                                ? "opacity-100 scale-100"
+                                : "opacity-0 scale-95"
+                            }`}
+                          >
+                            {skill.info}
+
+                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-indigo-950/90 border-r border-b border-indigo-400/20 rotate-45" />
+                          </div>
                         </div>
-
-                        {/* TOOL NAME */}
-
-                        <p className="font-medium text-white">
-                          {skill.name}
-                        </p>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
+              ))}
 
-                {/* FOOTER */}
-
-                <div
-                  className="
-                    absolute
-                    bottom-7
-                    left-7
-                    right-7
-                    flex
-                    items-center
-                    justify-between
-                    sm:bottom-10
-                    sm:left-10
-                    sm:right-10
-                  "
-                >
-                  <span className="text-xs uppercase tracking-[0.2em] text-zinc-600">
-                    Scroll to explore
-                  </span>
-
-                  <span className="text-sm text-zinc-600">
-                    {group.number} / 04
-                  </span>
-                </div>
-              </div>
-            ))}
+            </div>
           </div>
         </div>
       </div>
