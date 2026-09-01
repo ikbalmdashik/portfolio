@@ -51,7 +51,7 @@ const projects: Project[] = [
     icon: ShieldCheck,
     accent: "text-emerald-400 border-emerald-500/20 bg-emerald-500/10",
     githubUrl: "https://github.com/ikbalmdashik/Purabi-General-Insurance.git",
-    liveUrl: "https://purabi-general-insurance.vercel.app",
+    liveUrl: "https://purabi-general-insurance-seven.vercel.app",
   },
   {
     title: "WalletHub",
