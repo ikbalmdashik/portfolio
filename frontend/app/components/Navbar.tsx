@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { Menu, X } from "lucide-react";
+
+import Icon from "../icon.png";
 
 gsap.registerPlugin(ScrollToPlugin);
 
@@ -319,12 +322,26 @@ export default function Navbar() {
   return (
     <header className="fixed left-0 top-2 z-50 w-full">
       <nav className="mx-auto flex max-w-6xl items-center justify-between rounded-4xl px-4 py-3 md:px-6 md:py-5">
-        {/* Logo */}
+        {/* Crisp Circular Brand Logo */}
         <Link
           href="#home"
-          className="relative z-50 text-xl font-semibold text-black dark:text-white"
+          className="relative z-50 flex items-center gap-3 text-xl font-semibold text-black dark:text-white"
         >
-          Portfolio
+          <div 
+            className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-sm ring-1 ring-black/10 dark:bg-zinc-900 dark:ring-white/20"
+            style={{ borderRadius: "9999px", transform: "translateZ(0)" }}
+          >
+            <Image
+              src={Icon}
+              alt="MD Ashik Ikbal Logo"
+              width={36}
+              height={36}
+              unoptimized
+              priority
+              className="h-full w-full object-cover rounded-full"
+            />
+          </div>
+          <span>MD Ashik Ikbal</span>
         </Link>
 
         {/* Desktop Navigation */}
