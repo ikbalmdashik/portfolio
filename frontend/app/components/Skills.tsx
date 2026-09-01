@@ -3,453 +3,327 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
 import {
-  SiJavascript,
-  SiTypescript,
   SiReact,
   SiNextdotjs,
+  SiTypescript,
+  SiTailwindcss,
+  SiGnubash,
   SiNodedotjs,
   SiNestjs,
   SiDjango,
   SiPostgresql,
+  SiMysql,
+  SiPrisma,
+  SiTypeorm,
+  SiKotlin,
+  SiAndroidstudio,
+  SiOpenjdk,
+  SiFirebase,
+  SiGithub,
   SiDocker,
-  SiGit,
-  SiTailwindcss,
-  SiSass,
-  SiMongodb,
-  SiRedis,
-  SiNginx,
+  SiFedora,
+  SiPostman,
 } from "react-icons/si";
+import { GrOracle } from "react-icons/gr";
+import { Code2, Server, Smartphone, Wrench, Database, Layers } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const skillGroups = [
+interface SkillItem {
+  name: string;
+  level: number;
+  icon: React.ElementType;
+  iconColor: string;
+  barColor: string;
+  description: string;
+}
+
+interface SkillCategory {
+  id: string;
+  category: string;
+  accent: string;
+  activeBtnBg: string;
+  icon: React.ElementType;
+  skills: SkillItem[];
+}
+
+const skillCategories: SkillCategory[] = [
   {
-    title: "Frontend",
-    number: "01",
-    description: "Building modern and responsive interfaces.",
+    id: "frontend",
+    category: "Frontend",
+    accent: "text-cyan-400",
+    activeBtnBg: "bg-cyan-500 text-white shadow-lg shadow-cyan-500/25",
+    icon: Code2,
     skills: [
-      {
-        name: "JavaScript",
-        icon: SiJavascript,
-        color: "#F7DF1E",
-        info: "ES6+, Async/Await, DOM Manipulation",
-      },
-      {
-        name: "TypeScript",
-        icon: SiTypescript,
-        color: "#3178C6",
-        info: "Type Safety, Interfaces, Generics",
-      },
-      {
-        name: "React",
-        icon: SiReact,
-        color: "#61DAFB",
-        info: "Hooks, Context API, Component Architecture",
-      },
-      {
-        name: "Next.js",
-        icon: SiNextdotjs,
-        color: "#FFFFFF",
-        info: "SSR, SSG, API Routes, App Router",
-      },
-      {
-        name: "Tailwind CSS",
-        icon: SiTailwindcss,
-        color: "#06B6D4",
-        info: "Utility-First CSS, Responsive Design",
-      },
-      {
-        name: "Sass",
-        icon: SiSass,
-        color: "#CC6699",
-        info: "Variables, Mixins, Nested Styles",
-      },
+      { name: "React / Next.js", level: 90, icon: SiReact, iconColor: "text-[#61DAFB]", barColor: "bg-[#61DAFB]", description: "Component architecture, SSR, & state management" },
+      { name: "TypeScript", level: 85, icon: SiTypescript, iconColor: "text-[#3178C6]", barColor: "bg-[#3178C6]", description: "Strict type safety & maintainable codebases" },
+      { name: "Tailwind CSS", level: 95, icon: SiTailwindcss, iconColor: "text-[#06B6D4]", barColor: "bg-[#06B6D4]", description: "Responsive layouts & custom design systems" },
+      { name: "Next.js Framework", level: 85, icon: SiNextdotjs, iconColor: "text-white", barColor: "bg-white", description: "App router, server actions, & optimization" },
     ],
   },
   {
-    title: "Backend",
-    number: "02",
-    description: "Building APIs and server-side applications.",
+    id: "backend",
+    category: "Backend",
+    accent: "text-purple-400",
+    activeBtnBg: "bg-purple-500 text-white shadow-lg shadow-purple-500/25",
+    icon: Server,
     skills: [
-      {
-        name: "Node.js",
-        icon: SiNodedotjs,
-        color: "#5FA04E",
-        info: "Express, REST APIs, Microservices",
-      },
-      {
-        name: "NestJS",
-        icon: SiNestjs,
-        color: "#E0234E",
-        info: "Modular Architecture, TypeScript, GraphQL",
-      },
-      {
-        name: "Django",
-        icon: SiDjango,
-        color: "#44B78B",
-        info: "ORM, Admin Panel, REST Framework",
-      },
+      { name: "Node.js", level: 85, icon: SiNodedotjs, iconColor: "text-[#5FA04E]", barColor: "bg-[#5FA04E]", description: "Scalable asynchronous backend services" },
+      { name: "NestJS", level: 75, icon: SiNestjs, iconColor: "text-[#E0234E]", barColor: "bg-[#E0234E]", description: "Modular Enterprise Node.js architecture" },
+      { name: "Django REST", level: 75, icon: SiDjango, iconColor: "text-[#092E20]", barColor: "bg-[#092E20]", description: "Python Web APIs & rapid backend development" },
+      { name: "Bash Scripting", level: 70, icon: SiGnubash, iconColor: "text-[#4EAA25]", barColor: "bg-[#4EAA25]", description: "CLI automation & server administration" },
     ],
   },
   {
-    title: "Database",
-    number: "03",
-    description: "Working with reliable and structured data.",
+    id: "database",
+    category: "Databases & ORMs",
+    accent: "text-amber-400",
+    activeBtnBg: "bg-amber-500 text-white shadow-lg shadow-amber-500/25",
+    icon: Database,
     skills: [
-      {
-        name: "PostgreSQL",
-        icon: SiPostgresql,
-        color: "#4169E1",
-        info: "Complex Queries, Indexing, ACID Compliance",
-      },
-      {
-        name: "MongoDB",
-        icon: SiMongodb,
-        color: "#47A248",
-        info: "NoSQL, Document Database, Aggregation",
-      },
-      {
-        name: "Redis",
-        icon: SiRedis,
-        color: "#DC382D",
-        info: "Caching, Session Management, Pub/Sub",
-      },
+      { name: "PostgreSQL", level: 85, icon: SiPostgresql, iconColor: "text-[#4169E1]", barColor: "bg-[#4169E1]", description: "Relational modeling & query optimization" },
+      { name: "MySQL", level: 80, icon: SiMysql, iconColor: "text-[#4479A1]", barColor: "bg-[#4479A1]", description: "Database schema design & query optimization" },
+      { name: "Oracle DB", level: 70, icon: GrOracle, iconColor: "text-[#F80000]", barColor: "bg-[#F80000]", description: "Enterprise SQL & relational database management" },
+      { name: "Prisma ORM", level: 85, icon: SiPrisma, iconColor: "text-[#2D3748]", barColor: "bg-[#2D3748]", description: "Type-safe database client & schema migrations" },
+      { name: "TypeORM", level: 75, icon: SiTypeorm, iconColor: "text-[#FE0803]", barColor: "bg-[#FE0803]", description: "ActiveRecord and Data Mapper ORM patterns" },
     ],
   },
   {
-    title: "Tools & Workflow",
-    number: "04",
-    description: "Tools I use to build and manage projects.",
+    id: "mobile",
+    category: "Mobile",
+    accent: "text-blue-400",
+    activeBtnBg: "bg-blue-500 text-white shadow-lg shadow-blue-500/25",
+    icon: Smartphone,
     skills: [
-      {
-        name: "Docker",
-        icon: SiDocker,
-        color: "#2496ED",
-        info: "Containerization, Docker Compose, CI/CD",
-      },
-      {
-        name: "Git",
-        icon: SiGit,
-        color: "#F05032",
-        info: "Version Control, Branching, Collaboration",
-      },
-      {
-        name: "Nginx",
-        icon: SiNginx,
-        color: "#009639",
-        info: "Reverse Proxy, Load Balancing, Web Server",
-      },
+      { name: "Kotlin", level: 85, icon: SiKotlin, iconColor: "text-[#7F52FF]", barColor: "bg-[#7F52FF]", description: "Native Android development with clean architecture" },
+      { name: "Android Studio", level: 85, icon: SiAndroidstudio, iconColor: "text-[#3DDC84]", barColor: "bg-[#3DDC84]", description: "UI layout development & app deployment" },
+      { name: "Java", level: 75, icon: SiOpenjdk, iconColor: "text-[#ED8B00]", barColor: "bg-[#ED8B00]", description: "Object-oriented programming & legacy support" },
+      { name: "Firebase", level: 80, icon: SiFirebase, iconColor: "text-[#FFCA28]", barColor: "bg-[#FFCA28]", description: "Auth, Firestore, & real-time DB integrations" },
+    ],
+  },
+  {
+    id: "tools",
+    category: "Tools & DevOps",
+    accent: "text-emerald-400",
+    activeBtnBg: "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25",
+    icon: Wrench,
+    skills: [
+      { name: "Git / GitHub", level: 90, icon: SiGithub, iconColor: "text-white", barColor: "bg-white", description: "Version control, branching strategies, & collaboration" },
+      { name: "Docker", level: 70, icon: SiDocker, iconColor: "text-[#2496ED]", barColor: "bg-[#2496ED]", description: "Containerization & consistent environment setup" },
+      { name: "Fedora Linux", level: 80, icon: SiFedora, iconColor: "text-[#51A2DA]", barColor: "bg-[#51A2DA]", description: "Linux OS environment & shell workflow" },
+      { name: "Postman API", level: 85, icon: SiPostman, iconColor: "text-[#FF6C37]", barColor: "bg-[#FF6C37]", description: "API testing, documentation, & collection workflow" },
     ],
   },
 ];
 
 export default function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
+  const textRef = useRef<HTMLHeadingElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const bigLabelRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const cardsContainerRef = useRef<HTMLDivElement>(null);
-  const frontendCardRef = useRef<HTMLDivElement>(null);
+  const filterRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
 
-  const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string>("all");
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const grid = gridRef.current;
+    if (!grid) return;
 
-    checkMobile();
+    let timeoutId: NodeJS.Timeout;
 
-    window.addEventListener("resize", checkMobile);
+    const animateContent = () => {
+      const cards = grid.querySelectorAll(".skill-card");
+      const skillRows = grid.querySelectorAll(".skill-row");
 
-    return () => {
-      window.removeEventListener("resize", checkMobile);
-    };
-  }, []);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    const title = titleRef.current;
-    const label = labelRef.current;
-    const bigLabel = bigLabelRef.current;
-    const header = headerRef.current;
-    const cardsContainer = cardsContainerRef.current;
-    const frontendCard = frontendCardRef.current;
-
-    if (
-      !section ||
-      !title ||
-      !label ||
-      !bigLabel ||
-      !header ||
-      !cardsContainer ||
-      !frontendCard
-    ) {
-      return;
-    }
-
-    const ctx = gsap.context(() => {
-      const characters = title.querySelectorAll(".skills-character");
-      const cards = cardsContainer.querySelectorAll(".skill-card");
-
-      const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-
-      /*
-       * Initial states
-       */
-
-      gsap.set(bigLabel, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
+      // Reset GSAP Tweens on re-triggering
+      gsap.killTweensOf(cards);
+      skillRows.forEach((row) => {
+        const bar = row.querySelector(".skill-progress-bar");
+        const text = row.querySelector(".skill-level-text");
+        if (bar) gsap.killTweensOf(bar);
+        if (text) gsap.killTweensOf(text);
       });
 
-      gsap.set(label, {
-        opacity: 0,
-        scale: 0.4,
-        y: -20,
-      });
+      // Initial card placement for snappy spring slide
+      gsap.set(cards, { opacity: 0, y: 45, scale: 0.96 });
 
-      gsap.set(characters, {
-        opacity: 0,
-        y: 30,
-        filter: "blur(4px)",
-      });
-
-      gsap.set(cards, {
-        opacity: 0,
-        y: 30,
-        scale: 0.98,
-      });
-
-      // Set initial position for title
-      gsap.set(title, {
-        y: 0,
-        opacity: 1,
-      });
-
-      /*
-       * Reduced motion
-       */
-
-      if (prefersReducedMotion) {
-        gsap.set(characters, {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-        });
-
-        gsap.set(cards, {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-        });
-
-        return;
-      }
-
-      /*
-       * Pin the Skills header.
-       */
-
-      ScrollTrigger.create({
-        trigger: section,
-        start: "top top",
-        end: "bottom bottom",
-        pin: header,
-        pinSpacing: false,
-        anticipatePin: 1,
-      });
-
-      /*
-       * Subtitle character animation.
-       */
-
-      gsap.to(characters, {
-        opacity: 1,
-        y: 0,
-        filter: "blur(0px)",
-        duration: 0.3,
-        stagger: 0.02,
-        ease: "power2.out",
-
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: "+=8%",
-          scrub: 1,
-          toggleActions: "play none none none",
-        },
-      });
-
-      /*
-       * Cards animation.
-       */
-
+      // 1. Snappy & Smooth Card Entry (0.45s)
       gsap.to(cards, {
         opacity: 1,
         y: 0,
         scale: 1,
-        duration: 0.3,
+        duration: 0.45,
+        delay: 0.05,
         stagger: 0.08,
+        ease: "back.out(1.2)", // Subtle smooth spring stop
+        onComplete: () => {
+          ScrollTrigger.refresh();
+        },
+      });
+
+      // 2. Perfectly Synchronized Progress Fill + Counter
+      skillRows.forEach((row, idx) => {
+        const bar = row.querySelector<HTMLElement>(".skill-progress-bar");
+        const text = row.querySelector<HTMLElement>(".skill-level-text");
+        if (!bar || !text) return;
+
+        const targetVal = parseInt(text.getAttribute("data-target") || "0", 10);
+
+        // Reset state
+        gsap.set(bar, { scaleX: 0 });
+        text.innerText = "0%";
+
+        const tracker = { progress: 0 };
+
+        // Animating bar fill & text in lockstep over 2.5 seconds
+        gsap.to(bar, {
+          scaleX: 1,
+          duration: 2.5,
+          delay: 0.25 + idx * 0.04,
+          ease: "power1.out",
+        });
+
+        gsap.to(tracker, {
+          progress: 1,
+          duration: 2.5,
+          delay: 0.25 + idx * 0.04,
+          ease: "power1.out",
+          onUpdate: () => {
+            // Numbers directly match current bar percentage scale
+            const currentPercentage = Math.round(tracker.progress * targetVal);
+            text.innerText = `${currentPercentage}%`;
+          },
+        });
+      });
+    };
+
+    timeoutId = setTimeout(() => {
+      requestAnimationFrame(() => {
+        animateContent();
+      });
+    }, 60);
+
+    const trigger = ScrollTrigger.create({
+      trigger: grid,
+      start: "top 85%",
+      end: "bottom 15%",
+      onEnter: () => animateContent(),
+      onEnterBack: () => animateContent(),
+    });
+
+    return () => {
+      clearTimeout(timeoutId);
+      trigger.kill();
+    };
+  }, [activeFilter]);
+
+  // Main Pinning Animation timeline
+  useEffect(() => {
+    const section = sectionRef.current;
+    const text = textRef.current;
+    const label = labelRef.current;
+    const bigLabel = bigLabelRef.current;
+    const filter = filterRef.current;
+
+    if (!section || !text || !label || !bigLabel || !filter) return;
+
+    const ctx = gsap.context(() => {
+      const characters = text.querySelectorAll(".skills-character");
+
+      gsap.set(bigLabel, { opacity: 1, y: 0, scale: 1 });
+      gsap.set(label, { opacity: 0, scale: 0.4, y: -20 });
+      gsap.set(characters, { opacity: 0, y: 35, filter: "blur(8px)" });
+      gsap.set(filter, { opacity: 0, y: 20 });
+
+      const timeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "+=1800",
+          scrub: 1,
+          pin: ".skills-stage",
+          pinSpacing: true,
+          anticipatePin: 1,
+        },
+      });
+
+      timeline.to(characters, {
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
+        duration: 0.08,
+        stagger: 0.045,
         ease: "power2.out",
-
-        scrollTrigger: {
-          trigger: section,
-          start: "top+=5% top",
-          end: "top+=20% top",
-          scrub: 1,
-          toggleActions: "play none none none",
-        },
       });
 
-      /*
-       * Large Skills -> Small Skills transition.
-       */
-
-      const transitionTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: "top+=15% top",
-          end: "top+=30% top",
-          scrub: 1,
-          toggleActions: "play none none none",
-        },
+      timeline.to(filter, {
+        opacity: 1,
+        y: 0,
+        duration: 0.15,
+        ease: "power2.out",
       });
 
-      transitionTimeline.to(bigLabel, {
-        opacity: 0,
-        scale: 0.5,
-        y: -30,
-        duration: 0.3,
-        ease: "power2.in",
-      });
+      timeline.to({}, { duration: 0.5 });
 
-      transitionTimeline.to(
-        label,
-        {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          duration: 0.3,
-          ease: "power2.out",
-        },
-        "-=0.2"
+      timeline.to(
+        bigLabel,
+        { opacity: 0, scale: 0.6, y: -50, duration: 0.3, ease: "power2.in" },
+        "+=0.1"
       );
 
-      /*
-       * ---------------------------------------------------------
-       * FRONTEND CARD -> SUBTITLE COLLISION
-       * ---------------------------------------------------------
-       *
-       * The subtitle moves up when the Frontend card approaches it
-       * and continues scrolling up with the card.
-       */
-
-      // Ensure the title has will-change for better performance
-      gsap.set(title, {
-        willChange: "transform, opacity",
-      });
-
-      // Create scroll trigger for title animation
-      ScrollTrigger.create({
-        trigger: frontendCard,
-        start: "top 40%",
-        end: "top -20%",
-        scrub: 1,
-        invalidateOnRefresh: true,
-
-        onUpdate: (self) => {
-          const progress = Math.min(self.progress, 1);
-          const moveDistance = 300;
-
-          // Move the title up with the card
-          gsap.to(title, {
-            y: -moveDistance * progress,
-            opacity: 1 - progress * 0.2,
-            duration: 0.15,
-            overwrite: "auto",
-            ease: "power1.out",
-          });
-        },
-      });
-
-      /*
-       * Sticky label shrink on scroll.
-       */
+      timeline.to(
+        label,
+        { opacity: 1, scale: 1, y: 0, duration: 0.3, ease: "power2.out" },
+        "-=0.15"
+      );
 
       ScrollTrigger.create({
         trigger: section,
         start: "top top",
         end: "bottom top",
-
         onUpdate: (self) => {
           const progress = self.progress;
-          const mobile = window.innerWidth < 768;
+          const isMobile = window.innerWidth < 768;
 
-          if (mobile) {
-            gsap.to(label, {
-              opacity: 0,
-              duration: 0.1,
-              overwrite: "auto",
-            });
-
+          if (isMobile) {
+            gsap.to(label, { opacity: 0, duration: 0.1, overwrite: "auto" });
             return;
           }
 
-          if (progress > 0.2 && progress < 0.8) {
-            const shrinkProgress = (progress - 0.2) / 0.6;
-
+          if (progress > 0.3 && progress < 1) {
+            const shrinkProgress = (progress - 0.3) / 0.7;
             const scale = 1 - shrinkProgress * 0.6;
-            const labelOpacity = 1 - shrinkProgress * 0.3;
-            const yOffset = shrinkProgress * 15;
+            const opacity = 1 - shrinkProgress * 0.3;
+            const yOffset = shrinkProgress * 20;
 
             gsap.to(label, {
               scale: Math.max(scale, 0.4),
-              opacity: Math.max(labelOpacity, 0.7),
+              opacity: Math.max(opacity, 0.7),
               y: -yOffset,
               duration: 0.1,
               overwrite: "auto",
             });
-          } else if (progress >= 0.8 || progress <= 0.2) {
-            gsap.to(label, {
-              opacity: 0,
-              duration: 0.1,
-              overwrite: "auto",
-            });
+          } else {
+            gsap.to(label, { opacity: 0, duration: 0.1, overwrite: "auto" });
           }
         },
       });
     }, section);
 
-    return () => {
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
-  const statement = "Tools I use to build.";
+  const statement = "Tools & Technologies.";
 
-  const handleSkillClick = (skillName: string) => {
-    if (isMobile) {
-      setHoveredSkill(
-        hoveredSkill === skillName ? null : skillName
-      );
-    }
-  };
+  const filteredCategories =
+    activeFilter === "all"
+      ? skillCategories
+      : skillCategories.filter((cat) => cat.id === activeFilter);
 
   return (
-    <section
-      ref={sectionRef}
-      id="skills"
-      className="relative min-h-[280vh]"
-    >
-      {/* Sticky Label - Below Navbar */}
+    <section ref={sectionRef} id="skills" className="relative min-h-[1800px]">
       <div
         ref={labelRef}
         className="fixed left-0 right-0 z-50 pointer-events-none hidden md:block"
@@ -458,202 +332,127 @@ export default function Skills() {
           transformOrigin: "center center",
         }}
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center">
-            <p className="text-xs font-medium uppercase tracking-[0.4em] text-indigo-400 whitespace-nowrap">
-              Skills
+      </div>
+
+      <div className="skills-stage relative flex min-h-screen items-start justify-center overflow-hidden px-4 sm:px-6 lg:px-8 pt-28 sm:pt-36 pb-12">
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[350px] sm:h-[450px] w-[350px] sm:w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/[0.04] blur-[120px]" />
+
+        <div className="relative z-10 mx-auto w-full max-w-7xl flex flex-col items-center justify-start text-center">
+          <div ref={bigLabelRef} className="mb-3 sm:mb-6 text-center w-full">
+            <p className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-indigo-400 tracking-tight text-center">
+              My Skills
             </p>
+            <div className="mt-2 sm:mt-3 h-1 w-16 sm:w-24 mx-auto bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full" />
           </div>
-        </div>
-      </div>
 
-      {/* Sticky Header */}
-      <div
-        ref={headerRef}
-        className="sticky top-0 z-40 pt-16 sm:pt-20 md:pt-24 pb-4 sm:pb-6 bg-transparent"
-      >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto">
-
-            {/* Large Skills Label */}
-            <div className="mb-2 sm:mb-4 text-center">
-              <div
-                ref={bigLabelRef}
-                className="text-center"
-              >
-                <p className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-indigo-400 tracking-tight">
-                  Skills
-                </p>
-
-                <div className="mt-1.5 h-1 w-12 sm:w-20 mx-auto bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Skills Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
-        <div className="max-w-6xl mx-auto">
-
-          {/* =================================================
-              TOOLS I USE TO BUILD
-              ================================================= */}
-
-          <div className="flex justify-center mb-16 sm:mb-20 md:mb-24">
+          <div className="flex justify-center items-center text-center w-full">
             <h2
-              ref={titleRef}
-              className="max-w-6xl text-center text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.05] tracking-tight text-white px-2"
+              ref={textRef}
+              className="max-w-6xl text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.05] tracking-tight text-white px-2"
             >
-              {statement.split("").map((character, index) => {
-                const isBuild =
-                  index >= "Tools I use to ".length;
-
-                return (
-                  <span
-                    key={`${character}-${index}`}
-                    className={`skills-character inline-block ${
-                      isBuild
-                        ? "bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
-                        : ""
-                    }`}
-                    style={{
-                      whiteSpace:
-                        character === " "
-                          ? "pre"
-                          : "normal",
-                    }}
-                  >
-                    {character}
-                  </span>
-                );
-              })}
+              {statement.split("").map((character, index) => (
+                <span
+                  key={`${character}-${index}`}
+                  className="skills-character inline-block"
+                  style={{
+                    whiteSpace: character === " " ? "pre" : "normal",
+                  }}
+                >
+                  {character}
+                </span>
+              ))}
             </h2>
           </div>
 
-          {/* =================================================
-              SKILLS CARDS
-              ================================================= */}
-
           <div
-            ref={cardsContainerRef}
-            className="max-w-6xl mx-auto pt-40 sm:pt-52 md:pt-64 lg:pt-80"
+            ref={filterRef}
+            className="mt-4 sm:mt-8 flex flex-wrap justify-center items-center gap-2 sm:gap-3 px-2 text-center w-full"
           >
-            <div className="grid grid-cols-1 gap-4 sm:gap-6">
-
-              {skillGroups.map((group, groupIndex) => (
-                <div
-                  key={group.title}
-                  ref={
-                    groupIndex === 0
-                      ? frontendCardRef
-                      : undefined
-                  }
-                  className="skill-card rounded-xl sm:rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 md:p-8 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:bg-white/[0.05]"
+            <button
+              onClick={() => setActiveFilter("all")}
+              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs sm:text-sm font-semibold transition-all ${activeFilter === "all"
+                  ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/25"
+                  : "bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] hover:text-white"
+                }`}
+            >
+              <Layers className="h-4 w-4" />
+              All
+            </button>
+            {skillCategories.map((cat) => {
+              const IconComp = cat.icon;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveFilter(cat.id)}
+                  className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs sm:text-sm font-semibold transition-all ${activeFilter === cat.id
+                      ? cat.activeBtnBg
+                      : "bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] hover:text-white"
+                    }`}
                 >
-                  {/* Card Header */}
-                  <div className="flex items-start justify-between mb-4 sm:mb-6">
-                    <div className="flex-1">
+                  <IconComp className="h-4 w-4" />
+                  {cat.category}
+                </button>
+              );
+            })}
+          </div>
 
-                      <div className="flex items-center gap-2 sm:gap-3">
-                        <span className="text-xs sm:text-sm font-medium text-indigo-400">
-                          {group.number}
-                        </span>
-
-                        <span className="h-px flex-1 bg-gradient-to-r from-indigo-400/20 to-transparent" />
-                      </div>
-
-                      <h3 className="mt-2 text-xl sm:text-2xl md:text-3xl font-bold text-white">
-                        {group.title}
-                      </h3>
-
-                      <p className="mt-1 text-zinc-400 text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl">
-                        {group.description}
+          <div className="mx-auto mt-6 sm:mt-8 w-full max-w-5xl px-2 sm:px-0 flex justify-center items-center">
+            <div
+              ref={gridRef}
+              className={`w-full grid gap-5 sm:gap-6 grid-cols-1 transition-all duration-300 ${activeFilter === "all" ? "md:grid-cols-2" : "max-w-lg mx-auto"
+                }`}
+            >
+              {filteredCategories.map((cat) => {
+                const CategoryIcon = cat.icon;
+                return (
+                  <div
+                    key={cat.id}
+                    className="skill-card w-full text-left rounded-2xl sm:rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:bg-white/[0.05]"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <CategoryIcon className={`h-5 w-5 ${cat.accent}`} />
+                      <p className={`text-xs sm:text-sm font-bold uppercase tracking-[0.2em] ${cat.accent}`}>
+                        {cat.category}
                       </p>
                     </div>
 
-                    <span className="hidden lg:block select-none text-6xl md:text-7xl lg:text-8xl font-bold leading-none text-white/[0.03] ml-3">
-                      {group.number}
-                    </span>
-                  </div>
+                    <div className="mt-5 sm:mt-6 space-y-4">
+                      {cat.skills.map((skill, sIdx) => {
+                        const SkillIcon = skill.icon;
+                        return (
+                          <div key={sIdx} className="skill-row group relative space-y-2 cursor-pointer">
+                            <div className="flex justify-between items-center text-sm sm:text-base">
+                              <div className="flex items-center gap-2.5">
+                                <SkillIcon className={`h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${skill.iconColor}`} />
+                                <span className="font-semibold text-zinc-100 group-hover:text-white transition-colors">
+                                  {skill.name}
+                                </span>
+                              </div>
+                              <span
+                                className={`skill-level-text text-xs sm:text-sm font-mono font-bold ${skill.iconColor}`}
+                                data-target={skill.level}
+                              >
+                                0%
+                              </span>
+                            </div>
 
-                  {/* Skills Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-                    {group.skills.map((skill) => {
-                      const Icon = skill.icon;
+                            <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                              <div
+                                className={`skill-progress-bar h-full rounded-full origin-left ${skill.barColor}`}
+                                style={{ width: `${skill.level}%` }}
+                              />
+                            </div>
 
-                      const isHovered =
-                        hoveredSkill === skill.name;
-
-                      return (
-                        <div
-                          key={skill.name}
-                          className={`group relative flex flex-col items-center gap-1.5 p-3 sm:p-4 rounded-lg sm:rounded-xl border transition-all duration-300 cursor-pointer ${
-                            isHovered || isMobile
-                              ? "border-indigo-400/30 bg-indigo-500/10 -translate-y-0.5 shadow-lg shadow-indigo-500/10"
-                              : "border-white/10 bg-white/[0.03] hover:border-indigo-400/20 hover:bg-white/[0.06] hover:-translate-y-0.5"
-                          }`}
-                          onMouseEnter={() =>
-                            !isMobile &&
-                            setHoveredSkill(skill.name)
-                          }
-                          onMouseLeave={() =>
-                            !isMobile &&
-                            setHoveredSkill(null)
-                          }
-                          onClick={() =>
-                            handleSkillClick(skill.name)
-                          }
-                        >
-                          {/* Icon */}
-                          <div
-                            className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-lg transition-all duration-300 ${
-                              isHovered || isMobile
-                                ? "bg-indigo-500/20 scale-105"
-                                : "bg-black/20 group-hover:bg-indigo-500/10 group-hover:scale-105"
-                            }`}
-                          >
-                            <Icon
-                              className={`text-xl sm:text-2xl transition-all duration-300 ${
-                                isHovered || isMobile
-                                  ? "grayscale-0"
-                                  : "text-zinc-400 grayscale group-hover:grayscale-0"
-                              }`}
-                              style={{
-                                color:
-                                  isHovered || isMobile
-                                    ? skill.color
-                                    : undefined,
-                              }}
-                            />
+                            <div className="pointer-events-none absolute bottom-full left-0 mb-2 hidden w-max max-w-[320px] rounded-xl border border-white/15 bg-zinc-900/95 px-3.5 py-2.5 text-xs sm:text-sm leading-snug text-zinc-200 shadow-2xl backdrop-blur-md transition-all duration-200 group-hover:block z-30">
+                              {skill.description}
+                            </div>
                           </div>
-
-                          {/* Skill Name */}
-                          <p className="font-medium text-white text-[10px] sm:text-xs text-center">
-                            {skill.name}
-                          </p>
-
-                          {/* Skill Info Tooltip */}
-                          <div
-                            className={`absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full bg-indigo-950/90 backdrop-blur-xl text-indigo-200 text-[10px] sm:text-xs px-2.5 py-1 rounded-lg border border-indigo-400/20 whitespace-nowrap transition-all duration-300 pointer-events-none z-20 ${
-                              isHovered ||
-                              (isMobile &&
-                                hoveredSkill === skill.name)
-                                ? "opacity-100 scale-100"
-                                : "opacity-0 scale-95"
-                            }`}
-                          >
-                            {skill.info}
-
-                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-indigo-950/90 border-r border-b border-indigo-400/20 rotate-45" />
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
-
+                );
+              })}
             </div>
           </div>
         </div>

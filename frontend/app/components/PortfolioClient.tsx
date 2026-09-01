@@ -11,6 +11,7 @@ import Projects from "./Projects";
 import Skills from "./Skills";
 import ThreeBackground from "./ThreeBackground";
 import ResumeViewer from "./ResumeViewer";
+import ConstructionWarning from "./Notice";
 
 export default function PortfolioClient() {
   const [showResume, setShowResume] = useState(false);
