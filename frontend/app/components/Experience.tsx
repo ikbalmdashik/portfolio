@@ -3,123 +3,99 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Briefcase, Calendar, MapPin, CheckCircle2, Terminal } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
+interface ExperienceItem {
+  id: string;
+  role: string;
+  company: string;
+  location: string;
+  period: string;
+  type: string;
+  accent: string;
+  activeBtnBg: string;
+  responsibilities: string[];
+  technologies: string[];
+}
+
+const experiences: ExperienceItem[] = [
+  {
+    id: "goinnovior",
+    role: "Full Stack Developer Intern",
+    company: "Goinnovior",
+    location: "Mirpur DOHS, Dhaka",
+    period: "July 2025 – Present",
+    type: "Internship",
+    accent: "text-indigo-400",
+    activeBtnBg: "bg-indigo-500 text-white shadow-lg shadow-indigo-500/25",
+    responsibilities: [
+      "Developed responsive web application features and UI components using Next.js & React.js.",
+      "Built and integrated RESTful APIs using Express.js for seamless frontend-backend communication.",
+      "Implemented server-side business logic, API endpoints, and efficient data handling routines.",
+      "Debugged application issues to optimize end-to-end functionality and overall user experience.",
+      "Managed version control workflows and feature branches using Git & GitHub.",
+    ],
+    technologies: [
+      "Next.js",
+      "React.js",
+      "Express.js",
+      "Node.js",
+      "REST API",
+      "JavaScript",
+      "TypeScript",
+      "Git",
+    ],
+  },
+];
+
 export default function Experience() {
   const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
+  const textRef = useRef<HTMLHeadingElement>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const bigLabelRef = useRef<HTMLDivElement>(null);
+  const cardsGridRef = useRef<HTMLDivElement>(null);
 
+  // Main GSAP ScrollTrigger timeline matching Skills/Projects dynamics
   useEffect(() => {
     const section = sectionRef.current;
-    const title = titleRef.current;
+    const text = textRef.current;
+    const label = labelRef.current;
+    const bigLabel = bigLabelRef.current;
 
-    if (!section || !title) return;
+    if (!section || !text || !label || !bigLabel) return;
 
     const ctx = gsap.context(() => {
-      const label = section.querySelector(".experience-label");
+      const characters = text.querySelectorAll(".experience-character");
+      const cards = gsap.utils.toArray<HTMLElement>(".experience-card");
 
-      const characters = title.querySelectorAll(
-        ".experience-character"
-      );
-
-      const cards = section.querySelectorAll(
-        ".experience-card"
-      );
-
-      const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-
-      // ==========================================
-      // REDUCED MOTION
-      // ==========================================
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
       if (prefersReducedMotion) {
-        gsap.set(label, {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-        });
-
-        gsap.set(characters, {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-        });
-
-        gsap.set(cards, {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-        });
-
+        gsap.set([bigLabel, characters, cards], { opacity: 1, y: 0, filter: "blur(0px)" });
         return;
       }
 
-      // ==========================================
-      // INITIAL STATES
-      // ==========================================
-
-      gsap.set(label, {
-        opacity: 0,
-        y: 20,
-        filter: "blur(8px)",
-      });
-
-      gsap.set(characters, {
-        opacity: 0,
-        y: 35,
-        filter: "blur(8px)",
-      });
-
-      gsap.set(cards, {
-        opacity: 0,
-        y: 50,
-        filter: "blur(10px)",
-      });
-
-      // ==========================================
-      // MAIN SCROLL TIMELINE
-      // ==========================================
+      // Initial States
+      gsap.set(bigLabel, { opacity: 1, y: 0, scale: 1 });
+      gsap.set(label, { opacity: 0, scale: 0.4, y: -20 });
+      gsap.set(characters, { opacity: 0, y: 35, filter: "blur(8px)" });
+      gsap.set(cards, { opacity: 0, y: 45, scale: 0.96 });
 
       const timeline = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-
           start: "top top",
-
           end: "+=2000",
-
           scrub: 1,
-
           pin: ".experience-stage",
-
           pinSpacing: true,
-
           anticipatePin: 1,
-
-          invalidateOnRefresh: true,
         },
       });
 
-      // ==========================================
-      // 1. EXPERIENCE LABEL
-      // ==========================================
-
-      timeline.to(label, {
-        opacity: 1,
-        y: 0,
-        filter: "blur(0px)",
-        duration: 0.12,
-        ease: "power3.out",
-      });
-
-      // ==========================================
-      // 2. WRITE
-      // "WHERE I'VE WORKED."
-      // ==========================================
-
+      // 1. Reveal Title Characters
       timeline.to(characters, {
         opacity: 1,
         y: 0,
@@ -129,384 +105,209 @@ export default function Experience() {
         ease: "power2.out",
       });
 
-      // ==========================================
-      // 3. HOLD
-      // ==========================================
+      // 2. Pause Stage
+      timeline.to({}, { duration: 0.25 });
 
-      timeline.to(
-        {},
-        {
-          duration: 0.25,
-        }
-      );
+      // 3. Transition Main Heading to Floating Top Label
+      timeline.to(bigLabel, { opacity: 0, scale: 0.6, y: -50, duration: 0.3, ease: "power2.in" }, "+=0.1");
+      timeline.to(label, { opacity: 1, scale: 1, y: 0, duration: 0.3, ease: "power2.out" }, "-=0.15");
 
-      // ==========================================
-      // 4. REVEAL EXPERIENCE CARD
-      // ==========================================
-
+      // 4. Reveal Experience Cards with Spring Ease
       timeline.to(cards, {
         opacity: 1,
         y: 0,
-        filter: "blur(0px)",
-        duration: 0.16,
+        scale: 1,
+        duration: 0.45,
         stagger: 0.12,
-        ease: "power3.out",
+        ease: "back.out(1.2)",
       });
 
-      // ==========================================
-      // 5. HOLD
-      // ==========================================
+      // 5. Final Hold Stage
+      timeline.to({}, { duration: 0.3 });
 
-      timeline.to(
-        {},
-        {
-          duration: 0.25,
-        }
-      );
+      // Dynamic Sticky Floating Label Shrink Handler
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        onUpdate: (self) => {
+          const progress = self.progress;
+          const isMobile = window.innerWidth < 768;
+
+          if (isMobile) {
+            gsap.to(label, { opacity: 0, duration: 0.1, overwrite: "auto" });
+            return;
+          }
+
+          if (progress > 0.3 && progress < 1) {
+            const shrinkProgress = (progress - 0.3) / 0.7;
+            const scale = 1 - shrinkProgress * 0.6;
+            const opacity = 1 - shrinkProgress * 0.3;
+            const yOffset = shrinkProgress * 20;
+
+            gsap.to(label, {
+              scale: Math.max(scale, 0.4),
+              opacity: Math.max(opacity, 0.7),
+              y: -yOffset,
+              duration: 0.1,
+              overwrite: "auto",
+            });
+          } else {
+            gsap.to(label, { opacity: 0, duration: 0.1, overwrite: "auto" });
+          }
+        },
+      });
     }, section);
 
-    return () => {
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
   const statement = "Where I've worked.";
 
   return (
-    <section
-      ref={sectionRef}
-      id="experience"
-      className="relative min-h-[2000px]"
-    >
-      {/* ==========================================
-          EXPERIENCE STAGE
-      ========================================== */}
-
+    <section ref={sectionRef} id="experience" className="relative min-h-[2000px]">
+      {/* Fixed Header Label during Pinned Scrolling */}
       <div
-        className="
-          experience-stage
-          relative
-          flex
-          min-h-screen
-          items-center
-          justify-center
-          overflow-hidden
-          px-6
-          lg:px-8
-        "
+        ref={labelRef}
+        className="fixed left-0 right-0 z-50 pointer-events-none hidden md:block"
+        style={{
+          top: "clamp(70px, 80px, 90px)",
+          transformOrigin: "center center",
+        }}
       >
-        {/* ==========================================
-            BACKGROUND GLOW
-        ========================================== */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        </div>
+      </div>
 
-        <div
-          className="
-            pointer-events-none
-            absolute
-            left-1/2
-            top-1/2
-            h-[500px]
-            w-[500px]
-            -translate-x-1/2
-            -translate-y-1/2
-            rounded-full
-            bg-indigo-500/[0.05]
-            blur-[150px]
-          "
-        />
+      {/* Main Experience Pinned Stage */}
+      <div className="experience-stage relative flex min-h-screen items-start justify-center overflow-hidden px-4 sm:px-6 lg:px-8 pt-28 sm:pt-36 pb-12">
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[350px] sm:h-[450px] w-[350px] sm:w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/[0.04] blur-[120px]" />
 
-        <div className="relative z-10 mx-auto w-full max-w-7xl">
-
-          {/* ========================================
-              LABEL
-          ======================================== */}
-
-          <div className="experience-label mb-8 text-center">
-            <p
-              className="
-                text-xs
-                font-medium
-                uppercase
-                tracking-[0.4em]
-                text-indigo-400
-              "
-            >
-              Experience
+        <div className="relative z-10 mx-auto w-full max-w-7xl flex flex-col items-center justify-start text-center">
+          
+          {/* Main Stage Heading */}
+          <div ref={bigLabelRef} className="mb-3 sm:mb-6 text-center w-full">
+            <p className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-indigo-400 tracking-tight text-center">
+              My Experience
             </p>
+            <div className="mt-2 sm:mt-3 h-1 w-16 sm:w-24 mx-auto bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 rounded-full" />
           </div>
 
-          {/* ========================================
-              MAIN STATEMENT
-          ======================================== */}
-
-          <div className="flex justify-center">
+          <div className="flex justify-center items-center text-center w-full">
             <h2
-              ref={titleRef}
-              className="
-                max-w-6xl
-                text-center
-                text-5xl
-                font-bold
-                leading-[1.05]
-                tracking-tight
-                text-white
-                sm:text-6xl
-                md:text-7xl
-                lg:text-8xl
-              "
+              ref={textRef}
+              className="max-w-6xl text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.05] tracking-tight text-white px-2"
             >
-              {statement.split("").map((character, index) => {
-                const gradientStart =
-                  "Where I've ".length;
-
-                const isGradient =
-                  index >= gradientStart;
-
-                return (
-                  <span
-                    key={`${character}-${index}`}
-                    className={`
-                      experience-character
-                      inline-block
-                      ${
-                        isGradient
-                          ? "bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
-                          : ""
-                      }
-                    `}
-                    style={{
-                      whiteSpace:
-                        character === " "
-                          ? "pre"
-                          : "normal",
-                    }}
-                  >
-                    {character}
-                  </span>
-                );
-              })}
+              {statement.split("").map((character, index) => (
+                <span
+                  key={`${character}-${index}`}
+                  className="experience-character inline-block"
+                  style={{
+                    whiteSpace: character === " " ? "pre" : "normal",
+                  }}
+                >
+                  {character}
+                </span>
+              ))}
             </h2>
           </div>
 
-          {/* ========================================
-              EXPERIENCE CARD
-          ======================================== */}
-
-          <div className="mx-auto mt-16 max-w-5xl">
-
+          {/* Experience Cards Grid */}
+          <div className="mx-auto mt-8 sm:mt-12 w-full max-w-4xl px-2 sm:px-0 flex justify-center items-center">
             <div
-              className="
-                experience-card
-                group
-                relative
-                overflow-hidden
-                rounded-[2rem]
-                border
-                border-white/10
-                bg-white/[0.03]
-                p-8
-                shadow-2xl
-                backdrop-blur-xl
-                transition-all
-                duration-500
-                hover:-translate-y-2
-                hover:border-indigo-400/30
-                hover:bg-indigo-500/[0.04]
-                sm:p-10
-              "
+              ref={cardsGridRef}
+              className="w-full flex flex-col gap-6"
             >
-              {/* ==================================
-                  BACKGROUND NUMBER
-              ================================== */}
-
-              <span
-                className="
-                  absolute
-                  right-8
-                  top-6
-                  select-none
-                  text-8xl
-                  font-bold
-                  leading-none
-                  text-white/[0.03]
-                  transition-all
-                  duration-500
-                  group-hover:text-indigo-400/[0.08]
-                "
-              >
-                01
-              </span>
-
-              {/* ==================================
-                  CONTENT
-              ================================== */}
-
-              <div className="relative z-10">
-
-                {/* HEADER */}
-
-                <div>
-                  <p
-                    className="
-                      text-sm
-                      font-medium
-                      uppercase
-                      tracking-[0.25em]
-                      text-indigo-400
-                    "
-                  >
-                    Internship
-                  </p>
-
-                  <h3
-                    className="
-                      mt-5
-                      text-3xl
-                      font-bold
-                      tracking-tight
-                      text-white
-                      sm:text-4xl
-                    "
-                  >
-                    Django Intern
-                  </h3>
-
-                  <p className="mt-2 text-zinc-500">
-                    Backend Development
-                  </p>
-                </div>
-
-                {/* DESCRIPTION */}
-
-                <p
-                  className="
-                    mt-8
-                    max-w-3xl
-                    text-lg
-                    leading-8
-                    text-zinc-400
-                  "
+              {experiences.map((exp, idx) => (
+                <div
+                  key={exp.id}
+                  className="experience-card group relative w-full text-left rounded-2xl sm:rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-xl transition-all duration-300 hover:border-indigo-500/30 hover:bg-white/[0.05]"
                 >
-                  Worked on backend development using Python and
-                  Django, developing APIs and working with
-                  databases.
-                </p>
+                  {/* Background Number Index */}
+                  <span className="absolute right-6 top-4 select-none text-7xl sm:text-8xl font-bold leading-none text-white/[0.03] transition-all duration-500 group-hover:text-indigo-400/[0.08]">
+                    0{idx + 1}
+                  </span>
 
-                {/* TECHNOLOGIES */}
+                  <div className="relative z-10">
+                    {/* Header Row */}
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-400">
+                          <Briefcase className="h-3.5 w-3.5" />
+                          {exp.type}
+                        </span>
+                      </div>
 
-                <div className="mt-8 flex flex-wrap gap-2">
-                  {["Python", "Django", "REST API", "Database"].map(
-                    (technology) => (
-                      <span
-                        key={technology}
-                        className="
-                          rounded-full
-                          border
-                          border-white/10
-                          bg-white/[0.04]
-                          px-3
-                          py-1.5
-                          text-xs
-                          font-medium
-                          text-zinc-400
-                          transition-all
-                          duration-300
-                          group-hover:border-indigo-400/20
-                          group-hover:text-zinc-300
-                        "
-                      >
-                        {technology}
-                      </span>
-                    )
-                  )}
-                </div>
+                      <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-zinc-400">
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="h-3.5 w-3.5 text-indigo-400" />
+                          {exp.period}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5 text-purple-400" />
+                          {exp.location}
+                        </span>
+                      </div>
+                    </div>
 
-                {/* RESPONSIBILITIES */}
+                    {/* Role & Company Title */}
+                    <div className="mt-5">
+                      <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-white transition-transform duration-300 group-hover:translate-x-1">
+                        {exp.role}
+                      </h3>
+                      <p className="mt-1 text-sm sm:text-base font-semibold text-indigo-400">
+                        {exp.company}
+                      </p>
+                    </div>
 
-                <div className="mt-10 grid gap-6 sm:grid-cols-2">
+                    {/* Key Contributions */}
+                    <div className="mt-6 space-y-2.5">
+                      <p className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                        Key Responsibilities & Achievements:
+                      </p>
+                      <ul className="space-y-2 text-xs sm:text-sm text-zinc-300">
+                        {exp.responsibilities.map((item, i) => (
+                          <li key={i} className="flex items-start gap-2.5">
+                            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
 
-                  <div>
-                    <p
-                      className="
-                        text-xs
-                        font-medium
-                        uppercase
-                        tracking-[0.2em]
-                        text-zinc-600
-                      "
-                    >
-                      Focus
-                    </p>
-
-                    <p className="mt-3 text-zinc-300">
-                      Backend development
-                    </p>
+                    {/* Tech Badges */}
+                    <div className="mt-6 pt-4 border-t border-white/5">
+                      <p className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3">
+                        Technologies & Tools:
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {exp.technologies.map((tech) => (
+                          <span
+                            key={tech}
+                            className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-zinc-300 transition-colors group-hover:border-indigo-400/20 group-hover:text-white"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <p
-                      className="
-                        text-xs
-                        font-medium
-                        uppercase
-                        tracking-[0.2em]
-                        text-zinc-600
-                      "
-                    >
-                      Stack
-                    </p>
-
-                    <p className="mt-3 text-zinc-300">
-                      Python & Django
-                    </p>
-                  </div>
-
+                  {/* Gradient Indicator Line */}
+                  <div className="absolute bottom-0 left-8 right-8 h-[2px] origin-left scale-x-0 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 transition-transform duration-500 group-hover:scale-x-100 sm:left-10 sm:right-10" />
                 </div>
-              </div>
-
-              {/* ==================================
-                  BOTTOM LINE
-              ================================== */}
-
-              <div
-                className="
-                  absolute
-                  bottom-0
-                  left-8
-                  right-8
-                  h-px
-                  origin-left
-                  scale-x-0
-                  bg-gradient-to-r
-                  from-indigo-400
-                  via-purple-400
-                  to-pink-400
-                  transition-transform
-                  duration-500
-                  group-hover:scale-x-100
-                  sm:left-10
-                  sm:right-10
-                "
-              />
+              ))}
             </div>
           </div>
 
-          {/* ========================================
-              FOOTER
-          ======================================== */}
-
-          <div className="mt-10 flex justify-center">
-            <span
-              className="
-                text-xs
-                uppercase
-                tracking-[0.2em]
-                text-zinc-600
-              "
-            >
-              Scroll to explore
+          {/* Subtitle Footer */}
+          <div className="mt-8 flex justify-center">
+            <span className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-zinc-500">
+              <Terminal className="h-3.5 w-3.5 text-indigo-400" />
+              Professional Career Journey
             </span>
           </div>
+
         </div>
       </div>
     </section>
